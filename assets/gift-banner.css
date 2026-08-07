@@ -1,0 +1,203 @@
+/*
+ * Gift Banner
+ * --------------------------------------------------
+ * The banner is built as a self-contained section so
+ * its layout does not depend on Horizon's existing
+ * theme sections or component styles.
+ *
+ * The artwork is supplied as two SVG assets. They are
+ * positioned independently to reproduce the Figma
+ * composition while keeping the text and CTA editable
+ * through the Shopify customizer.
+ */
+
+.gift-banner {
+  position: relative;
+  width: 100%;
+  min-height: 878px;
+  padding: 0;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/*
+ * Artwork layer
+ * --------------------------------------------------
+ * The illustrations are decorative and sit behind the
+ * editable banner content.
+ */
+.gift-banner__art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.gift-banner__image {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+/*
+ * Top illustration
+ * --------------------------------------------------
+ * The exported top frame is 1440px wide and forms the
+ * upper artwork area shown in the supplied design.
+ */
+.gift-banner__image--top {
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+/*
+ * Bottom illustration
+ * --------------------------------------------------
+ * The second exported frame is narrower than the full
+ * desktop canvas, so it is positioned from the right
+ * side to reproduce the split artwork composition.
+ */
+.gift-banner__image--bottom {
+  top: 390px;
+  right: 0;
+  width: 61.8056%;
+}
+
+/*
+ * Editable content
+ * --------------------------------------------------
+ * The content remains above the artwork and is aligned
+ * independently from the decorative SVG layers.
+ */
+.gift-banner__content {
+  position: relative;
+  z-index: 2;
+  max-width: 483px;
+  margin-left: 67px;
+  padding-top: 398px;
+}
+
+/*
+ * Banner heading
+ */
+.gift-banner__heading {
+  margin: 0;
+  font-family: "Jost", sans-serif;
+  font-size: 70px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #000000;
+}
+
+/*
+ * Banner description
+ */
+.gift-banner__description {
+  margin-top: 36px;
+  font-family: "Jost", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #000000;
+}
+
+.gift-banner__description p {
+  margin: 0;
+}
+
+/*
+ * CTA
+ * --------------------------------------------------
+ * The CTA uses a simple flex layout so the text and
+ * arrow remain aligned regardless of the editable
+ * button label.
+ */
+.gift-banner__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 220px;
+  height: 50px;
+  margin-top: 50px;
+  padding: 0 24px;
+
+  background: #000000;
+  color: #ffffff;
+
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.gift-banner__button:hover {
+  background: #222222;
+}
+
+.gift-banner__arrow {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.gift-banner__button:hover .gift-banner__arrow {
+  transform: translateX(6px);
+}
+
+/*
+ * Mobile layout
+ * --------------------------------------------------
+ * The desktop artwork is intentionally repositioned
+ * rather than simply allowing it to overflow. This
+ * keeps the section usable on narrow screens.
+ */
+@media screen and (max-width: 749px) {
+  .gift-banner {
+    min-height: 760px;
+  }
+
+  .gift-banner__image--top {
+    top: 0;
+    left: -35%;
+    width: 170%;
+  }
+
+  .gift-banner__image--bottom {
+    top: 280px;
+    right: -25%;
+    width: 115%;
+  }
+
+  .gift-banner__content {
+    max-width: calc(100% - 40px);
+    margin-left: 20px;
+    padding-top: 430px;
+  }
+
+  .gift-banner__heading {
+    font-size: 46px;
+    line-height: 1;
+  }
+
+  .gift-banner__description {
+    margin-top: 24px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .gift-banner__button {
+    width: 200px;
+    height: 48px;
+    margin-top: 32px;
+  }
+}

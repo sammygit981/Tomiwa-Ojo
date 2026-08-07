@@ -1,0 +1,93 @@
+{{ 'gift-banner.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="gift-banner"
+  aria-labelledby="gift-banner-heading-{{ section.id }}"
+>
+  <div class="gift-banner__art" aria-hidden="true">
+    <img
+      src="{{ 'gift-illustration-top.svg' | asset_url }}"
+      alt=""
+      class="gift-banner__image gift-banner__image--top"
+      loading="eager"
+      width="1440"
+      height="390"
+    >
+
+    <img
+      src="{{ 'gift-illustration-bottom.svg' | asset_url }}"
+      alt=""
+      class="gift-banner__image gift-banner__image--bottom"
+      loading="lazy"
+      width="890"
+      height="390"
+    >
+  </div>
+
+  <div class="gift-banner__content">
+    <h1
+      id="gift-banner-heading-{{ section.id }}"
+      class="gift-banner__heading"
+    >
+      {{ section.settings.heading }}
+    </h1>
+
+    <div class="gift-banner__description">
+      {{ section.settings.description }}
+    </div>
+
+    {% if section.settings.button_link != blank %}
+      <a
+        href="{{ section.settings.button_link }}"
+        class="gift-banner__button"
+      >
+        <span>{{ section.settings.button_text }}</span>
+
+        <span
+          class="gift-banner__arrow"
+          aria-hidden="true"
+        >
+          →
+        </span>
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Gift Banner",
+  "tag": "section",
+  "class": "section-gift-banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The Gift Guide"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "SHOP NOW"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Banner"
+    }
+  ]
+}
+{% endschema %}
