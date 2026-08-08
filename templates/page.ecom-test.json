@@ -1,10 +1,76 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "gift_banner": {
-      "type": "gift-banner"
+      "type": "gift-banner",
+      "settings": {
+        "heading": "The Gift Guide",
+        "description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>",
+        "button_text": "SHOP NOW",
+        "button_link": ""
+      }
     },
     "ecom_product_grid": {
-      "type": "ecom-product-grid"
+      "type": "ecom-product-grid",
+      "blocks": {
+        "product_UPnfik": {
+          "type": "product",
+          "settings": {
+            "product": "classic-varsity-top"
+          }
+        },
+        "product_CkCf9H": {
+          "type": "product",
+          "settings": {
+            "product": "classic-leather-jacket"
+          }
+        },
+        "product_NVtH6A": {
+          "type": "product",
+          "settings": {
+            "product": "chequered-red-shirt"
+          }
+        },
+        "product_DzN3m9": {
+          "type": "product",
+          "settings": {
+            "product": "black-leather-bag"
+          }
+        },
+        "product_ANLiVw": {
+          "type": "product",
+          "settings": {
+            "product": "blue-silk-tuxedo"
+          }
+        },
+        "product_NEqQmK": {
+          "type": "product",
+          "settings": {
+            "product": "black-leather-bag"
+          }
+        }
+      },
+      "block_order": [
+        "product_UPnfik",
+        "product_CkCf9H",
+        "product_NVtH6A",
+        "product_DzN3m9",
+        "product_ANLiVw",
+        "product_NEqQmK"
+      ],
+      "settings": {
+        "heading": "Shop our collection",
+        "add_to_cart_label": "ADD TO CART",
+        "companion_product": ""
+      }
     }
   },
   "order": [
