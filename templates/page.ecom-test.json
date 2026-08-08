@@ -2,9 +2,13 @@
   "sections": {
     "gift_banner": {
       "type": "gift-banner"
+    },
+    "ecom_product_grid": {
+      "type": "ecom-product-grid"
     }
   },
   "order": [
-    "gift_banner"
+    "gift_banner",
+    "ecom_product_grid"
   ]
 }
