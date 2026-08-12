@@ -193,21 +193,22 @@ body:has([data-tisso-banner]) .page-wrapper > p {
   object-fit: contain;
 }
 
+/* Top art: full width, height follows ratio so it never letterboxes */
 .tisso-gift-banner__illus-top {
-  top: 0;                    /* 64 - 64 */
-  left: 0;                   /* 0 / 1440 */
-  width: 100%;               /* 1440 / 1440 */
-  height: 50%;               /*  390 /  780 */
-  object-position: left top;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;              /* proportional — closes the mid gap */
 }
 
+/* Bottom art: anchored bottom-right; height scales with its width,
+   which naturally opens space above it for the title/description */
 .tisso-gift-banner__illus-bottom {
   top: auto;
-  bottom: 0;                 /* 378 + 402 = 780 */
-  left: 38.1944%;            /*  550 / 1440 */
-  width: 61.8056%;           /*  890 / 1440 */
-  height: 51.5385%;          /*  402 /  780 */
-  object-position: right bottom;
+  bottom: 0;
+  left: 38.1944%;           /* 550 / 1440 */
+  width: 61.8056%;          /* 890 / 1440 */
+  height: auto;             /* proportional */
 }
 
 /* Copy column: 67 + 483 = 550px = the exact left edge of the bottom
@@ -390,11 +391,9 @@ transform: translateX(4px);
   .tisso-banner {
     padding-bottom: 40px;
   }
-
   .tisso-header__desktop {
     display: none;
   }
-
   .tisso-header__mobile {
     display: flex;
     align-items: center;
@@ -451,11 +450,15 @@ transform: translateX(4px);
   height: 19px;
   text-decoration: none;
 }
-
   .tisso-menu.is-open {
     display: block;
     background: #f7f7f7;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  /* When the drawer is open, the drawer's own bar replaces the header bar */
+  .tisso-header.is-menu-open .tisso-header__mobile {
+    display: none;
   }
 
   .tisso-menu__bar {
@@ -545,14 +548,15 @@ transform: translateX(4px);
     overflow: hidden;            /* art bleeds off both edges */
   }
 
-  /* Copy sits at the top, art starts underneath it */
+    /* Copy flows from the top; frame becomes the offset parent for the CTA */
   .tisso-gift-banner__content {
-    left: 0;
-    right: 0;
-    top: 40px;
+    position: static;   /* was absolute → made the CTA anchor to this box */
+    left: auto;
+    right: auto;
+    top: auto;
     bottom: auto;
     width: 100%;
-    padding: 0 24px;
+    padding: 40px 24px 0;
     text-align: center;
     z-index: 2;
   }

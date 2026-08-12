@@ -12,6 +12,7 @@
       openBtn.classList.add('is-open');
       openBtn.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
+      header.classList.add('is-menu-open');
     };
 
     const close = () => {
@@ -20,6 +21,7 @@
       openBtn.classList.remove('is-open');
       openBtn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
+      header.classList.remove('is-menu-open');
     };
 
     openBtn.addEventListener('click', () => {

@@ -233,7 +233,7 @@
   margin-bottom: 6px;
   font-family: "Jost", sans-serif;
   font-weight: 400;
-  font-size: 12px;
+  font-size: 14px;
   color: #000000;
 }
 
@@ -255,12 +255,12 @@
 .ecom-product-modal__color-label {
   display: flex;
   align-items: center;
-  height: 40px;
+  height: 48px;
   padding-right: 8px;
   background: #ffffff;
   color: #000000;
   font-family: "Jost", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   border-right: 1px solid #000000;
 }
@@ -270,9 +270,9 @@
 }
 
 .ecom-product-modal__color-swatch {
-  width: 6px;
+  width: 8px;
   height: 100%;
-  margin-right: 10px;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 
@@ -286,18 +286,37 @@
 
 .ecom-product-modal__size-trigger {
   width: 100%;
-  height: 40px;
-  padding: 0 12px;
+  height: 48px;
+  padding: 0;                 /* padding now handled per part */
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   border: 1px solid #000000;
   border-radius: 5px;
   background: #f5f5f5;
   font-family: "Jost", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: #000000;
   cursor: pointer;
+  overflow: hidden;
+}
+
+/* Left field: the label */
+.ecom-product-modal__size-trigger [data-size-label] {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  text-align: left;
+}
+
+/* Right box: separate arrow cell divided by a rule (Figma) */
+.ecom-product-modal__size-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  border-left: 1px solid #000000;
 }
 
 .ecom-product-modal__size-chevron {

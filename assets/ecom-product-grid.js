@@ -136,13 +136,14 @@
 
       const select = document.createElement('div');
       select.className = 'ecom-product-modal__size-select';
-      select.innerHTML = `
+            select.innerHTML = `
         <button type="button" class="ecom-product-modal__size-trigger" data-size-trigger>
           <span data-size-label>Choose your size</span>
-          <span class="ecom-product-modal__size-chevron" aria-hidden="true"></span>
+          <span class="ecom-product-modal__size-arrow" aria-hidden="true">
+            <span class="ecom-product-modal__size-chevron"></span>
+          </span>
         </button>
         <ul class="ecom-product-modal__size-list" data-size-list hidden></ul>`;
-
       const list = select.querySelector('[data-size-list]');
       option.values.forEach((value, idx) => {
         const li = document.createElement('li');
