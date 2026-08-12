@@ -112,23 +112,34 @@
 .ecom-product-hotspot--6 { left: 73.85%; top: 36.94%; } /* denim      */
 
 /* ==========================================================================
-   Quick-view popup — Figma dialog 311 wide
-   image 120x140 @ (17, 36.42) | text column 146 @ x145
-   add to cart 271x45 @ (20, 377) | close 12x12 @ (278.79, 12.7)
+   Quick-view popup — Figma dialog 311 x 447, #FFFFFF, 0 2px 4px #00000033
+   Nothing scrolls: the whole card is visible at once.
+
+   Vertical budget (sums to exactly 447):
+    36.42 top pad
+   +140    summary (= the image height, so the text can never outgrow it)
+   + 11    form top pad
+   + 69.2  Color   (label 18.2 + gap 6 + field 45)
+   + 12    options gap
+   + 69.2  Size    (label 18.2 + gap 6 + field 45)   -> ends at 337.82
+   + 39.18 options margin-bottom                     -> button starts at 377
+   + 45    ADD TO CART                               -> ends at 422
+   + 25    form bottom pad                           -> 447
    ========================================================================== */
 .ecom-product-modal {
   --modal-w: 311px;
+  --modal-h: 447px;
   --modal-pad-left: 17px;
   --modal-pad-right: 20px;
   --modal-media-w: 120px;
   --modal-media-h: 140px;
   --modal-field-h: 45px;
   --modal-chevron-cell: 56px;
-  --modal-swatch-w: 8px;
   --modal-value-size: 16px;   /* option values + placeholder */
   --modal-label-size: 14px;   /* "Color" / "Size" */
   --modal-label-color: #333333;
   --modal-line: 1px solid #000000;
+  --modal-ease: cubic-bezier(0.25, 1, 0.5, 1);
 
   position: fixed;
   inset: 0;
@@ -159,10 +170,10 @@
   position: relative;
   box-sizing: border-box;
   width: var(--modal-w);
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
+  height: var(--modal-h);
+  overflow: hidden;                            /* never scrolls */
   background: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);  /* #00000033 */
 }
 
 /* Close — 12 x 12 at (278.79, 12.7) => right 20.21 / top 12.7 */
@@ -170,7 +181,7 @@
   position: absolute;
   top: 12.7px;
   right: 20.21px;
-  z-index: 3;
+  z-index: 8;
   width: 12px;
   height: 12px;
   padding: 0;
@@ -186,7 +197,7 @@
   height: 12px;
 }
 
-/* Summary — 17 + 120 + 8 + 146 + 20 = 311 */
+/* Summary — 17 + 120 + 8 + 146 + 20 = 311 ---------------------------------- */
 .ecom-product-modal__top {
   display: grid;
   grid-template-columns: var(--modal-media-w) 1fr;
@@ -208,15 +219,25 @@
   object-fit: cover;
 }
 
-/* the text box starts at y39 while the image starts at y36.42 */
+/* Fixed stage the same height as the image: the name, price and description
+   are pinned to their own y, so they sit on identical lines for every
+   product (1-line or 2-line name) and can never spill past the image. */
 .ecom-product-modal__summary {
+  position: relative;
   min-width: 0;
-  padding-top: 2.58px;
+  height: var(--modal-media-h);
+  overflow: hidden;
 }
 
-/* Jost Light 16 / 120% */
+/* Jost Light 16 / 120% — Figma y39, 2-line slot (2 x 19.2 = 38.4) */
 .ecom-product-modal__title {
-  margin: 0 0 11px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2.58px;
+  height: 38.4px;
+  margin: 0;
+  overflow: hidden;
   font-family: "Jost", sans-serif;
   font-weight: 300;
   font-size: 16px;
@@ -224,9 +245,13 @@
   color: #000000;
 }
 
-/* Lustria Regular 16 / 120% */
+/* Lustria Regular 16 / 120% — Figma y88 */
 .ecom-product-modal__price {
-  margin: 0 0 12px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 51.58px;
+  margin: 0;
   font-family: "Lustria", serif;
   font-weight: 400;
   font-size: 16px;
@@ -234,8 +259,14 @@
   color: #000000;
 }
 
-/* Jost Light 14 / 110% / -1% */
+/* Jost Light 14 / 110% / -1% — Figma y119, clipped by the stage */
 .ecom-product-modal__description {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 82.58px;
+  bottom: 0;
+  overflow: hidden;
   font-family: "Jost", sans-serif;
   font-weight: 300;
   font-size: 14px;
@@ -248,15 +279,14 @@
 
 /* Options ------------------------------------------------------------------ */
 .ecom-product-modal__form {
-  padding: 11px var(--modal-pad-right) 20px;
+  padding: 11px var(--modal-pad-right) 25px;
 }
 
-/* 40px lands the button on its Figma y377 */
 .ecom-product-modal__options {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 39.18px;   /* lands ADD TO CART on its Figma y377 */
 }
 
 .ecom-product-modal__option-group {
@@ -304,20 +334,23 @@
   letter-spacing: -0.02em;
   cursor: pointer;
   border-right: var(--modal-line);
-  /* smooth swap from one colour to the next */
-  transition: background-color 250ms ease, color 250ms ease;
+  transition: background-color 260ms var(--modal-ease),
+              color 260ms var(--modal-ease);
 }
 
 .ecom-product-modal__color-option:last-child .ecom-product-modal__color-label {
   border-right: 0;
 }
 
-/* Named CSS colours resolve themselves, anything else keeps this fallback */
+/* The inset rule is the extra border: it outlines light swatches (White,
+   Cream...) that would otherwise vanish into the white cell, and simply
+   disappears inside a dark swatch. */
 .ecom-product-modal__color-swatch {
-  width: var(--modal-swatch-w);
+  width: 8px;
   height: 100%;
   margin-right: 8px;
   background: #cccccc;
+  box-shadow: inset 0 0 0 1px #000000;
   flex-shrink: 0;
 }
 
@@ -333,6 +366,9 @@
 
 /* Size — square white field with a divided chevron cell */
 .ecom-product-modal__size-select { position: relative; }
+
+/* Raised while open so the panel covers ADD TO CART instead of hiding behind it */
+.ecom-product-modal__size-select.is-open { z-index: 6; }
 
 .ecom-product-modal__size-trigger {
   position: relative;
@@ -359,7 +395,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  transition: opacity 150ms ease; /* smooth placeholder -> value swap */
+  transition: opacity 150ms var(--modal-ease);
 }
 
 .ecom-product-modal__size-value.is-fading { opacity: 0; }
@@ -376,11 +412,13 @@
   border-left: var(--modal-line);
 }
 
-/* up-arrow.svg / down-arrow.svg, 12 x 6 — one is shown per state */
+/* down-arrow.svg / up-arrow.svg, 12 x 6 — exactly one is shown per state.
+   pointer-events:none keeps the click target on the button itself. */
 .ecom-product-modal__size-chevron {
   display: block;
   width: 12px;
   height: 6px;
+  pointer-events: none;
 }
 
 .ecom-product-modal__size-chevron--up,
@@ -392,25 +430,33 @@
   display: block;
 }
 
-/* Animated open/close instead of a hard [hidden] toggle */
+/* Short panel hanging under the field: it stops well before the bottom of the
+   card (337.82 + 88 = 425.8 < 447) so its edge never merges with the popup
+   frame, and the remaining values are reached by scrolling inside it. */
 .ecom-product-modal__size-list {
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
-  z-index: 5;
+  z-index: 7;
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
   list-style: none;
   background: #ffffff;
   border: var(--modal-line);
   border-top: 0;
-  max-height: 180px;
+  max-height: 88px;            /* ~2.7 rows: the cut row signals "scroll me" */
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);
-  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms;
+  transition: opacity 220ms var(--modal-ease),
+              transform 220ms var(--modal-ease),
+              visibility 220ms;
 }
 
 .ecom-product-modal__size-select.is-open .ecom-product-modal__size-list {
@@ -419,9 +465,9 @@
   transform: translateY(0);
 }
 
-/* Values are centred, per the design */
+/* 8 + 16 + 8 = 32px per row */
 .ecom-product-modal__size-option {
-  padding: 10px 12px;
+  padding: 8px 12px;
   font-family: "Jost", sans-serif;
   font-weight: 400;
   font-size: var(--modal-value-size);
@@ -429,7 +475,8 @@
   letter-spacing: -0.02em;
   text-align: center;
   cursor: pointer;
-  transition: background-color 200ms ease, color 200ms ease;
+  transition: background-color 200ms var(--modal-ease),
+              color 200ms var(--modal-ease);
 }
 
 .ecom-product-modal__size-option:hover,
@@ -438,42 +485,27 @@
   color: #ffffff;
 }
 
-/* Add to cart — 271 x 45, label centred, arrow parked on the right --------- */
+/* ADD TO CART — plain, exactly as designed: no hover, no fill, no motion --- */
 .ecom-product-modal__add {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 100%;
+  width: 100%;              /* 311 - 20 - 20 = 271 */
   height: 45px;
-  padding: 0 20px;
+  /* extra right padding lands the label on its Figma x94.42 */
+  padding: 0 38.26px 0 20px;
   border: 0;
   background: #000000;
   color: #ffffff;
-  overflow: hidden;
   cursor: pointer;
-  transition: color 350ms ease;
 }
 
-.ecom-product-modal__add::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #fff544;
-  transform: translateX(-100%);
-  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
-  z-index: 0;
-}
-
-.ecom-product-modal__add:hover::before { transform: translateX(0); }
-.ecom-product-modal__add:hover { color: #000000; }
 .ecom-product-modal__add[aria-busy="true"] { opacity: 0.6; pointer-events: none; }
 
-/* Jost 400 / 16 / 20.48px / uppercase / centred */
+/* Jost 400 / 16 / 20.48px / uppercase */
 .ecom-product-modal__add-label {
-  position: relative;
-  z-index: 1;
   font-family: "Jost", sans-serif;
   font-weight: 400;
   font-size: 16px;
@@ -482,42 +514,55 @@
   text-transform: uppercase;
 }
 
+/* Figma line: w 33.699, h 0, border 1.5px solid #FFFFFF, at (226.41, 399).
+   Button starts at x20 / y377 -> right 271 - 206.41 - 33.699 = 30.891, top 22. */
 .ecom-product-modal__add-arrow {
   position: absolute;
-  right: 28px;
-  top: 50%;
-  z-index: 1;
-  width: 38px;
-  height: 1.5px;
-  margin-top: -0.75px;
-  background: currentColor;
-  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+  top: 22px;
+  right: 30.891px;
+  width: 33.699px;
+  height: 0;
+  border-top: 1.5px solid #ffffff;
+  box-sizing: border-box;
 }
 
 .ecom-product-modal__add-arrow::after {
   content: "";
   position: absolute;
   right: 0;
-  top: 50%;
+  top: 0;
   width: 7px;
   height: 7px;
-  border-top: 1.5px solid currentColor;
-  border-right: 1.5px solid currentColor;
+  border-top: 1.5px solid #ffffff;
+  border-right: 1.5px solid #ffffff;
   transform: translateY(-50%) rotate(45deg);
   box-sizing: border-box;
 }
 
-.ecom-product-modal__add:hover .ecom-product-modal__add-arrow { transform: translateX(4px); }
-
+/* Sits in the 25px under the button, so a message can never resize the card */
 .ecom-product-modal__status {
-  margin: 8px 0 0;
+  position: absolute;
+  left: var(--modal-pad-right);
+  right: var(--modal-pad-right);
+  bottom: 4px;
+  margin: 0;
   font-family: "Jost", sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.4;
+  text-align: center;
   color: #000000;
 }
 
 .ecom-product-modal__status:empty { display: none; }
+
+/* Safeguard only: on a viewport shorter than the card, let it fit */
+@media screen and (max-height: 520px) {
+  .ecom-product-modal__dialog {
+    height: auto;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+}
 
 /* ==========================================================================
    Mobile — 342 wide inner, 2 columns, 4px gap

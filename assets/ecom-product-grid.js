@@ -168,7 +168,14 @@
         trigger.setAttribute('aria-expanded', String(open));
       };
 
-      trigger.addEventListener('click', () => toggle(!select.classList.contains('is-open')));
+            trigger.addEventListener('click', () => {
+        const open = !select.classList.contains('is-open');
+        toggle(open);
+        // Glide the current choice into view instead of jumping to it
+        if (open) {
+          list.querySelector('.is-selected')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      });
 
       /** Cross-fades the trigger text so the choice feels smooth. */
       const showValue = (text) => {
