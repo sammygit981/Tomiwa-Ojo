@@ -16,7 +16,7 @@
         "banner_strip_text_mobile": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
       }
     },
-        "ecom_product_grid": {
+    "ecom_product_grid": {
       "type": "ecom-product-grid",
       "blocks": {
         "product_1": { "type": "product", "settings": { "product": "black-leather-bag" } },
@@ -37,12 +37,16 @@
       "settings": {
         "heading": "Tisso vison in the wild",
         "add_to_cart_label": "ADD TO CART",
-        "soft_winter_jacket": "soft-winter-jacket"
+        "soft_winter_jacket": "soft-winter-jacket",
+        "size_placeholder": "Choose your size",
+        "select_options_text": "Please select all options",
+        "unavailable_text": "Sold out",
+        "added_text": "Added to cart",
+        "error_text": "Something went wrong, please try again",
+        "close_label": "Close",
+        "bonus_trigger_options": "Black, Medium"
       }
     }
   },
-  "order": [
-    "tisso_banner",
-    "ecom_product_grid"
-  ]
+  "order": ["tisso_banner", "ecom_product_grid"]
 }

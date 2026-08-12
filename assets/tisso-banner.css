@@ -170,7 +170,8 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   position: relative;
   width: 100%;
   max-width: 1440px;
-  height: 780px;
+  aspect-ratio: 1440 / 780;
+  min-height: 620px;
   margin: 0 auto;
   background: #ffffff;
   overflow: hidden;
@@ -214,31 +215,36 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   height: auto;             /* proportional */
 }
 
-/* Copy column: 67 + 483 = 550px = the exact left edge of the bottom
-   artwork, so title / description / CTA are never blocked by it. */
+/* Copy column ends at 67 + 483 = 550px, the exact left edge of the bottom
+   artwork. 425 (title) + 70 + 50 + 84 (3 lines) + 50 = 679 = the Figma
+   y-position of SHOP NOW, so one gap value drives the whole column. */
 .tisso-gift-banner__content {
   position: absolute;
   left: 67px;
   top: 425px;
   bottom: auto;
   width: 483px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 50px;
   z-index: 2;
 }
 
 .tisso-gift-banner__title {
-  margin: 0 0 30px;
+  margin: 0;
   font-family: "Jost", sans-serif;
   font-weight: 500;
-  font-size: 70px;
+  font-size: clamp(40px, 4.8611vw, 70px); /* 70 / 1440 */
   line-height: 1em;
   color: #000000;
 }
 
 .tisso-gift-banner__description {
-  margin: 0 0 30px;
+  margin: 0;
   font-family: "Jost", sans-serif;
   font-weight: 400;
-  font-size: 20px;
+  font-size: clamp(15px, 1.3889vw, 20px); /* 20 / 1440 */
   line-height: 1.4em;
   color: #000000;
   white-space: pre-line;
@@ -310,35 +316,9 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 
 .tisso-gift-banner__cta:hover {
   color: #000000;
+  flex-shrink: 0;
 }
 
-
-/* hover background animation */
-.tisso-gift-banner__cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #fff544;
-  transform: translateX(-100%);
-  transition: transform 350ms cubic-bezier(0.25,1,0.5,1);
-  z-index: 0;
-}
-
-
-.tisso-gift-banner__cta > * {
-  position: relative;
-  z-index: 1;
-}
-
-
-.tisso-gift-banner__cta:hover::before {
-  transform: translateX(0);
-}
-
-
-.tisso-gift-banner__cta:hover {
-  color: #000000;
-}
 /* Arrow */
 .tisso-gift-banner__cta-arrow {
   position: relative;

@@ -112,9 +112,24 @@
 .ecom-product-hotspot--6 { left: 73.85%; top: 36.94%; } /* denim      */
 
 /* ==========================================================================
-   Quick-view modal
+   Quick-view popup — Figma dialog 311 wide
+   image 120x140 @ (17, 36.42) | text column 146 @ x145
+   add to cart 271x45 @ (20, 377) | close 12x12 @ (278.79, 12.7)
    ========================================================================== */
 .ecom-product-modal {
+  --modal-w: 311px;
+  --modal-pad-left: 17px;
+  --modal-pad-right: 20px;
+  --modal-media-w: 120px;
+  --modal-media-h: 140px;
+  --modal-field-h: 45px;
+  --modal-chevron-cell: 56px;
+  --modal-swatch-w: 8px;
+  --modal-value-size: 16px;   /* option values + placeholder */
+  --modal-label-size: 14px;   /* "Color" / "Size" */
+  --modal-label-color: #333333;
+  --modal-line: 1px solid #000000;
+
   position: fixed;
   inset: 0;
   z-index: 999999;
@@ -142,103 +157,132 @@
 
 .ecom-product-modal__dialog {
   position: relative;
-  width: 311px;
+  box-sizing: border-box;
+  width: var(--modal-w);
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   background: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Close — 12 x 12 at (278.79, 12.7) => right 20.21 / top 12.7 */
 .ecom-product-modal__close {
   position: absolute;
-  top: 8px;
-  right: 10px;
+  top: 12.7px;
+  right: 20.21px;
   z-index: 3;
-  width: 24px;
-  height: 24px;
+  width: 12px;
+  height: 12px;
   padding: 0;
   border: 0;
   background: transparent;
-  font-size: 20px;
-  line-height: 1;
-  color: #000000;
+  line-height: 0;
   cursor: pointer;
 }
 
+.ecom-product-modal__close img {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+/* Summary — 17 + 120 + 8 + 146 + 20 = 311 */
 .ecom-product-modal__top {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 12px;
-  padding: 16px 16px 12px;
+  grid-template-columns: var(--modal-media-w) 1fr;
+  gap: 8px;
+  padding: 36.42px var(--modal-pad-right) 0 var(--modal-pad-left);
 }
 
 .ecom-product-modal__media {
-  width: 120px;
-  height: 120px;
+  width: var(--modal-media-w);
+  height: var(--modal-media-h);
   background: #f5f5f5;
   overflow: hidden;
 }
 
 .ecom-product-modal__image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.ecom-product-modal__summary { min-width: 0; }
+/* the text box starts at y39 while the image starts at y36.42 */
+.ecom-product-modal__summary {
+  min-width: 0;
+  padding-top: 2.58px;
+}
 
+/* Jost Light 16 / 120% */
 .ecom-product-modal__title {
-  margin: 0 0 4px;
+  margin: 0 0 11px;
   font-family: "Jost", sans-serif;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.3;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.2;
   color: #000000;
 }
 
+/* Lustria Regular 16 / 120% */
 .ecom-product-modal__price {
-  margin-bottom: 8px;
-  font-family: "Jost", sans-serif;
+  margin: 0 0 12px;
+  font-family: "Lustria", serif;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.2;
   color: #000000;
 }
 
+/* Jost Light 14 / 110% / -1% */
 .ecom-product-modal__description {
   font-family: "Jost", sans-serif;
-  font-weight: 400;
-  font-size: 11px;
-  line-height: 1.4;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   color: #000000;
 }
 
 .ecom-product-modal__description p { margin: 0; }
 
-.ecom-product-modal__form { padding: 0 16px 16px; }
+/* Options ------------------------------------------------------------------ */
+.ecom-product-modal__form {
+  padding: 11px var(--modal-pad-right) 20px;
+}
 
+/* 40px lands the button on its Figma y377 */
 .ecom-product-modal__options {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 40px;
 }
 
+.ecom-product-modal__option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* "Color" / "Size" — Jost 400 / 14 / 130% / #333 */
 .ecom-product-modal__option-label {
-  margin-bottom: 6px;
   font-family: "Jost", sans-serif;
   font-weight: 400;
-  font-size: 14px;
-  color: #000000;
+  font-size: var(--modal-label-size);
+  line-height: 1.3;
+  color: var(--modal-label-color);
 }
 
-/* Colour: two-up segmented control */
+/* Colour — equal cells inside one outlined row */
 .ecom-product-modal__color-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid #000000;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: var(--modal-line);
 }
 
-.ecom-product-modal__color-option { position: relative; }
+.ecom-product-modal__color-option { position: relative; min-width: 0; }
 
 .ecom-product-modal__color-option input {
   position: absolute;
@@ -249,24 +293,31 @@
 .ecom-product-modal__color-label {
   display: flex;
   align-items: center;
-  height: 48px;
+  height: var(--modal-field-h);
   padding-right: 8px;
   background: #ffffff;
   color: #000000;
   font-family: "Jost", sans-serif;
-  font-size: 14px;
+  font-weight: 400;
+  font-size: var(--modal-value-size);
+  line-height: 1;
+  letter-spacing: -0.02em;
   cursor: pointer;
-  border-right: 1px solid #000000;
+  border-right: var(--modal-line);
+  /* smooth swap from one colour to the next */
+  transition: background-color 250ms ease, color 250ms ease;
 }
 
 .ecom-product-modal__color-option:last-child .ecom-product-modal__color-label {
   border-right: 0;
 }
 
+/* Named CSS colours resolve themselves, anything else keeps this fallback */
 .ecom-product-modal__color-swatch {
-  width: 8px;
+  width: var(--modal-swatch-w);
   height: 100%;
-  margin-right: 12px;
+  margin-right: 8px;
+  background: #cccccc;
   flex-shrink: 0;
 }
 
@@ -275,79 +326,110 @@
   color: #ffffff;
 }
 
-/* Size dropdown */
+.ecom-product-modal__color-option input:focus-visible + .ecom-product-modal__color-label {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Size — square white field with a divided chevron cell */
 .ecom-product-modal__size-select { position: relative; }
 
 .ecom-product-modal__size-trigger {
-  width: 100%;
-  height: 48px;
-  padding: 0;                 /* padding now handled per part */
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  border: 1px solid #000000;
-  border-radius: 5px;
-  background: #f5f5f5;
-  font-family: "Jost", sans-serif;
-  font-size: 14px;
-  color: #000000;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-/* Left field: the label */
-.ecom-product-modal__size-trigger [data-size-label] {
-  flex: 1;
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 0 14px;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--modal-field-h);
+  padding: 0 calc(var(--modal-chevron-cell) + 12px) 0 13px;
+  border: var(--modal-line);
+  border-radius: 0;
+  background: #ffffff;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: var(--modal-value-size);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #000000;
   text-align: left;
+  cursor: pointer;
 }
 
-/* Right box: separate arrow cell divided by a rule (Figma) */
-.ecom-product-modal__size-arrow {
+.ecom-product-modal__size-value {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 150ms ease; /* smooth placeholder -> value swap */
+}
+
+.ecom-product-modal__size-value.is-fading { opacity: 0; }
+
+.ecom-product-modal__size-cell {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--modal-chevron-cell);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  border-left: 1px solid #000000;
+  border-left: var(--modal-line);
 }
 
+/* up-arrow.svg / down-arrow.svg, 12 x 6 — one is shown per state */
 .ecom-product-modal__size-chevron {
-  width: 8px;
-  height: 8px;
-  border-right: 1.5px solid #000000;
-  border-bottom: 1.5px solid #000000;
-  transform: rotate(45deg) translateY(-2px);
-  transition: transform 200ms ease;
+  display: block;
+  width: 12px;
+  height: 6px;
 }
 
-.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron {
-  transform: rotate(-135deg) translateY(2px);
+.ecom-product-modal__size-chevron--up,
+.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron--down {
+  display: none;
 }
 
+.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron--up {
+  display: block;
+}
+
+/* Animated open/close instead of a hard [hidden] toggle */
 .ecom-product-modal__size-list {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(100% + 2px);
+  top: 100%;
   z-index: 5;
   margin: 0;
   padding: 0;
   list-style: none;
   background: #ffffff;
-  border: 1px solid #000000;
-  border-radius: 5px;
-  overflow: hidden;
+  border: var(--modal-line);
+  border-top: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms;
 }
 
-.ecom-product-modal__size-list[hidden] { display: none; }
+.ecom-product-modal__size-select.is-open .ecom-product-modal__size-list {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
 
+/* Values are centred, per the design */
 .ecom-product-modal__size-option {
   padding: 10px 12px;
   font-family: "Jost", sans-serif;
-  font-size: 12px;
+  font-weight: 400;
+  font-size: var(--modal-value-size);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-align: center;
   cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 .ecom-product-modal__size-option:hover,
@@ -356,37 +438,60 @@
   color: #ffffff;
 }
 
-.ecom-product-modal__status {
-  min-height: 18px;
-  margin-bottom: 8px;
-  font-family: "Jost", sans-serif;
-  font-size: 11px;
-  color: #000000;
-}
-
+/* Add to cart — 271 x 45, label centred, arrow parked on the right --------- */
 .ecom-product-modal__add {
-  width: 100%;
-  height: 45px;
-  padding: 13px 20px;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 45px;
+  padding: 0 20px;
   border: 0;
   background: #000000;
   color: #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 350ms ease;
+}
+
+.ecom-product-modal__add::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff544;
+  transform: translateX(-100%);
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 0;
+}
+
+.ecom-product-modal__add:hover::before { transform: translateX(0); }
+.ecom-product-modal__add:hover { color: #000000; }
+.ecom-product-modal__add[aria-busy="true"] { opacity: 0.6; pointer-events: none; }
+
+/* Jost 400 / 16 / 20.48px / uppercase / centred */
+.ecom-product-modal__add-label {
+  position: relative;
+  z-index: 1;
   font-family: "Jost", sans-serif;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 20.48px;
+  text-align: center;
   text-transform: uppercase;
-  cursor: pointer;
 }
 
 .ecom-product-modal__add-arrow {
-  position: relative;
-  width: 24px;
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  z-index: 1;
+  width: 38px;
   height: 1.5px;
-  background: #ffffff;
+  margin-top: -0.75px;
+  background: currentColor;
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .ecom-product-modal__add-arrow::after {
@@ -396,14 +501,26 @@
   top: 50%;
   width: 7px;
   height: 7px;
-  border-top: 1.5px solid #ffffff;
-  border-right: 1.5px solid #ffffff;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
   transform: translateY(-50%) rotate(45deg);
   box-sizing: border-box;
 }
 
+.ecom-product-modal__add:hover .ecom-product-modal__add-arrow { transform: translateX(4px); }
+
+.ecom-product-modal__status {
+  margin: 8px 0 0;
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #000000;
+}
+
+.ecom-product-modal__status:empty { display: none; }
+
 /* ==========================================================================
-   Mobile — 342 wide inner, 2 x 169 columns, 4px gap
+   Mobile — 342 wide inner, 2 columns, 4px gap
    ========================================================================== */
 @media screen and (max-width: 749px) {
   .section-ecom-product-grid { padding: 30px 0 40px; }

@@ -1,9 +1,10 @@
 {%- comment -%}
   Ecom Product Grid
   - 6 product blocks, each selectable from the customizer
-  - Every block renders a card (even when empty) so the 3x2 layout,
-    and therefore the hotspot numbering, always matches the design
-  - Product data is printed once per card as JSON for the quick-view modal
+  - Every block renders a card (even when empty) so the 3x2 layout, and
+    therefore the hotspot numbering, always matches the design
+  - Product data is printed once per card as JSON for the quick-view popup
+  - Prices are pre-formatted with the store's money format (no JS guessing)
 {%- endcomment -%}
 
 {{ 'ecom-product-grid.css' | asset_url | stylesheet_tag }}
@@ -46,7 +47,7 @@
                   "id": {{ product.id }},
                   "title": {{ product.title | json }},
                   "description": {{ product.description | json }},
-                  "price": {{ product.price }},
+                  "price_formatted": {{ product.price | money | strip_html | json }},
                   "featured_image": {{ product.featured_image | image_url: width: 800 | json }},
                   "options": [
                     {%- for option in product.options_with_values -%}
@@ -60,8 +61,7 @@
                     {%- for variant in product.variants -%}
                       {
                         "id": {{ variant.id }},
-                        "title": {{ variant.title | json }},
-                        "price": {{ variant.price }},
+                        "price_formatted": {{ variant.price | money | strip_html | json }},
                         "available": {{ variant.available }},
                         "options": {{ variant.options | json }}
                       }{% unless forloop.last %},{% endunless %}
@@ -76,8 +76,9 @@
     </div>
   </div>
 
-    {%- comment -%}
-    Quick-view popup. Every string, icon and endpoint is supplied by Liquid
+  {%- comment -%}
+    Quick-view popup. Every string, icon and endpoint is supplied by Liquid so
+    the JavaScript contains no hardcoded content.
   {%- endcomment -%}
   <div
     class="ecom-product-modal"
@@ -89,8 +90,6 @@
     data-unavailable="{{ section.settings.unavailable_text | escape }}"
     data-added="{{ section.settings.added_text | escape }}"
     data-error="{{ section.settings.error_text | escape }}"
-        ,
-    { "type": "text", "id": "close_label", "label": "Close button label", "default": "Close" }
     data-bonus-options="{{ section.settings.bonus_trigger_options | escape }}"
     data-icon-down="{{ 'down-arrow.svg' | asset_url }}"
     data-icon-up="{{ 'up-arrow.svg' | asset_url }}"
@@ -131,14 +130,15 @@
       </form>
     </div>
   </div>
-  
-  {%- comment -%} Bonus product auto-added when Black + Medium is selected {%- endcomment -%}
-  <script type="application/json" data-soft-winter-jacket>
+
+  {%- comment -%} Bonus product added automatically for the trigger option values {%- endcomment -%}
+  <script type="application/json" data-bonus-product>
     {%- if section.settings.soft_winter_jacket != blank -%}
       {
         "variants": [
           {%- for variant in section.settings.soft_winter_jacket.variants -%}
-            { "id": {{ variant.id }} }{% unless forloop.last %},{% endunless %}
+            { "id": {{ variant.id }}, "available": {{ variant.available }} }
+            {%- unless forloop.last -%},{%- endunless -%}
           {%- endfor -%}
         ]
       }
@@ -161,8 +161,22 @@
     {
       "type": "product",
       "id": "soft_winter_jacket",
-      "label": "Soft Winter Jacket (auto-added when Black + Medium is selected)"
-    }
+      "label": "Bonus product (Soft Winter Jacket)"
+    },
+    {
+      "type": "text",
+      "id": "bonus_trigger_options",
+      "label": "Bonus product trigger values",
+      "default": "Black, Medium",
+      "info": "Comma separated. When all of these values are selected the bonus product is added too."
+    },
+    { "type": "header", "content": "Popup text" },
+    { "type": "text", "id": "size_placeholder", "label": "Size placeholder", "default": "Choose your size" },
+    { "type": "text", "id": "close_label", "label": "Close button label", "default": "Close" },
+    { "type": "text", "id": "select_options_text", "label": "Message: options missing", "default": "Please select all options" },
+    { "type": "text", "id": "unavailable_text", "label": "Message: variant unavailable", "default": "Sold out" },
+    { "type": "text", "id": "added_text", "label": "Message: added to cart", "default": "Added to cart" },
+    { "type": "text", "id": "error_text", "label": "Message: error", "default": "Something went wrong, please try again" }
   ],
   "blocks": [
     {
