@@ -1,7 +1,10 @@
 /* Scoped: Tisso candidate test page */
+/* The test page shows only the two custom sections: the theme header,
+   footer and any other section in the template (page title / rich text)
+   are hidden instead of being matched by a brittle selector. */
 body:has([data-tisso-banner]) #header-group,
 body:has([data-tisso-banner]) footer,
-body:has([data-tisso-banner]) .page-wrapper > p {
+body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tisso-banner])):not(:has([data-ecom-product-grid-section])) {
   display: none !important;
 }
 
@@ -369,15 +372,29 @@ transform: translateX(4px);
   color: #ffffff;
 }
 
+/* Strip frame — Figma 1440 x 34, padding 10px 50px, #F5F5F5, no border */
 .tisso-gift-banner__strip {
-  margin: 0;
-  border: 0;           /* no rule/outline on any side of the strip */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1440px;
+  height: 34px;
+  margin: 0 auto;
+  border: 0;
   padding: 10px 50px;
   background: #f5f5f5;
+}
+
+/* Strip text — Jost 400 / 16px / 13.42px, centred (10 + 14 + 10 = 34) */
+.tisso-gift-banner__strip-text {
+  display: block;
   font-family: "Jost", sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 13.42px;
+  letter-spacing: 0;
   color: #000000;
   text-align: center;
 }
@@ -386,24 +403,30 @@ transform: translateX(4px);
   display: none;
 }
 
-/* Mobile */
+/* ==========================================================================
+   Mobile — Figma frame 375.44 x 520 = header 65 + hero 421 + strip 34
+   ========================================================================== */
 @media screen and (max-width: 749px) {
-  .tisso-banner {
-    padding-bottom: 40px;
-  }
-  .tisso-header__desktop {
-    display: none;
-  }
+  .tisso-banner { padding-bottom: 0; }
+
+  .tisso-header__desktop { display: none; }
+
+  /* Header — 375.44 x 65, padding 23px 16px, #F7F7F7, 0 2px 4px #00000026 */
   .tisso-header__mobile {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 50px;
+    box-sizing: border-box;
+    height: 65px;
     padding: 23px 16px;
     background: #f7f7f7;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
   }
+
+  /* The drawer carries its own bar, so the collapsed one is swapped out
+     (otherwise the wordmark renders twice). */
+  .tisso-header.is-menu-open .tisso-header__mobile { display: none; }
 
   .tisso-header__menu-button {
     position: absolute;
@@ -431,34 +454,19 @@ transform: translateX(4px);
     background: #000000;
   }
 
-  .tisso-header__menu-button.is-open .tisso-header__menu-icon span:first-child {
-    transform: translateY(3.25px) rotate(45deg);
-  }
-
-  .tisso-header__menu-button.is-open .tisso-header__menu-icon span:last-child {
-    transform: translateY(-3.25px) rotate(-45deg);
-  }
-
-  .tisso-header__menu-icon span {
-    transition: transform 200ms ease;
-  }
-
   .tisso-header__mobile-logo {
-  display: inline-flex;
-  align-items: center;
-  width: 151.44px;
-  height: 19px;
-  text-decoration: none;
-}
+    display: inline-flex;
+    align-items: center;
+    width: 151.44px;
+    height: 19px;
+    text-decoration: none;
+  }
+
+  /* Drawer */
   .tisso-menu.is-open {
     display: block;
     background: #f7f7f7;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  }
-
-  /* When the drawer is open, the drawer's own bar replaces the header bar */
-  .tisso-header.is-menu-open .tisso-header__mobile {
-    display: none;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
   }
 
   .tisso-menu__bar {
@@ -466,7 +474,8 @@ transform: translateX(4px);
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 50px;
+    box-sizing: border-box;
+    height: 65px;
     padding: 0 16px;
   }
 
@@ -538,94 +547,101 @@ transform: translateX(4px);
     transform: rotate(45deg);
   }
 
-    .tisso-banner { padding-bottom: 0; }
-
+  /* ---------- Hero — 375.44 x 421 ----------
+     Every child keeps its Figma coordinate, expressed as a % of the frame
+     so the whole composition scales as one unit on any phone width. */
   .tisso-gift-banner__frame {
+    --illus-x: -37.2872%;  /* -140 / 375.44 */
+    --illus-y:  37.2922%;  /*  157 / 421    */
+    --illus-w: 182.6923%;  /*  686 / 375.44 */
+    --illus-h:  62.7078%;  /*  264 / 421    */
+
     width: 100%;
-    max-width: none;             /* was 375px → left white gaps on wider phones */
-    height: 420px;
+    max-width: none;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 375.44 / 421;
     margin: 0;
-    overflow: hidden;            /* art bleeds off both edges */
+    overflow: hidden;      /* the artwork bleeds past both edges */
   }
 
-    /* Copy flows from the top; frame becomes the offset parent for the CTA */
+  /* Desktop auto-layout off: children are placed individually */
   .tisso-gift-banner__content {
-    position: static;   /* was absolute → made the CTA anchor to this box */
-    left: auto;
-    right: auto;
-    top: auto;
-    bottom: auto;
+    display: block;
+    left: 0;
+    top: 0;
     width: 100%;
-    padding: 40px 24px 0;
-    text-align: center;
-    z-index: 2;
+    height: 100%;
+    padding: 0;
   }
 
+  /* 197 x 30 @ y 49 — Jost 500 / 30px / 100% */
   .tisso-gift-banner__title {
-    margin-bottom: 14px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 11.639%;          /* 49 / 421 */
+    margin: 0;
     font-size: 30px;
-    line-height: 1.1em;
+    line-height: 1;
+    text-align: center;
   }
 
   .tisso-gift-banner__description--desktop { display: none; }
 
+  /* 340 x 42 @ y 103 — Jost 400 / 16px / 130% */
   .tisso-gift-banner__description--mobile {
+    position: absolute;
+    left: 50%;
+    top: 24.4656%;         /* 103 / 421 */
+    transform: translateX(-50%);
     display: block;
-    max-width: 300px;
-    margin: 0 auto;
+    width: 90.5711%;       /* 340 / 375.44 */
+    margin: 0;
     font-size: 16px;
-    line-height: 1.35em;
+    line-height: 1.3;
     text-align: center;
     white-space: normal;
   }
 
-  /* ONE illustration, sized by HEIGHT so it bleeds off both edges like the mockup */
+  /* 686 x 264 @ (-140, 157). cover crops the SVG to the box instead of
+     letterboxing or distorting it when its natural ratio differs. */
   .tisso-gift-banner__illus-top {
     display: block;
-    left: 50%;
-    right: auto;
-    top: 180px;                  /* 180 + 240 = 420 = frame height */
-    bottom: auto;
-    transform: translateX(-50%);
-    width: auto;
-    height: 240px;
-    max-height: none;
-    object-fit: contain;
-    object-position: center top;
+    left: var(--illus-x);
+    top: var(--illus-y);
+    width: var(--illus-w);
+    height: var(--illus-h);
+    object-fit: cover;
+    object-position: center;
   }
 
   .tisso-gift-banner__illus-bottom { display: none !important; }
 
-  /* CTA centred ON the artwork, near the bottom of the frame */
+  /* 193 x 45 @ y 337, padding 13px 20px, gap 10px */
   .tisso-gift-banner__cta {
     position: absolute;
     left: 50%;
-    top: auto;
-    bottom: 22px;
+    top: 80.0475%;         /* 337 / 421 */
     transform: translateX(-50%);
+    box-sizing: border-box;
     width: 193px;
     height: 45px;
     margin: 0;
-    padding: 0 20px;
-    justify-content: space-between;
-    z-index: 2;
+    padding: 13px 20px;
+    gap: 10px;
   }
 
+  /* ---------- Strip — 375 x 34 ---------- */
   .tisso-gift-banner__strip--desktop { display: none; }
+  .tisso-gift-banner__strip--mobile { display: flex; }
 
-  .tisso-gift-banner__strip--mobile {
-    display: block;
-    padding: 12px 16px;
-    font-size: 14px;
-  }
+  /* Figma's 50px side padding would clip the 288px line inside 375px,
+     so the line is capped and the frame keeps its exact 34px height. */
+  .tisso-gift-banner__strip { padding: 10px 16px; }
 
-  .tisso-gift-banner__strip--desktop {
-    display: none;
-  }
-
-  .tisso-gift-banner__strip--mobile {
-    display: block;
-    padding: 10px 50px;
+  .tisso-gift-banner__strip-text {
+    max-width: 288px;
     font-size: 14px;
     line-height: 13.42px;
   }

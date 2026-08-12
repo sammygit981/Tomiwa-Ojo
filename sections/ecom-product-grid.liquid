@@ -76,16 +76,40 @@
     </div>
   </div>
 
-  {%- comment -%} Quick-view modal (single instance, populated by JS) {%- endcomment -%}
-  <div class="ecom-product-modal" data-product-modal aria-hidden="true">
+    {%- comment -%}
+    Quick-view popup. Every string, icon and endpoint is supplied by Liquid
+  {%- endcomment -%}
+  <div
+    class="ecom-product-modal"
+    data-product-modal
+    aria-hidden="true"
+    data-cart-add-url="{{ routes.cart_add_url }}"
+    data-size-placeholder="{{ section.settings.size_placeholder | escape }}"
+    data-select-options="{{ section.settings.select_options_text | escape }}"
+    data-unavailable="{{ section.settings.unavailable_text | escape }}"
+    data-added="{{ section.settings.added_text | escape }}"
+    data-error="{{ section.settings.error_text | escape }}"
+        ,
+    { "type": "text", "id": "close_label", "label": "Close button label", "default": "Close" }
+    data-bonus-options="{{ section.settings.bonus_trigger_options | escape }}"
+    data-icon-down="{{ 'down-arrow.svg' | asset_url }}"
+    data-icon-up="{{ 'up-arrow.svg' | asset_url }}"
+  >
     <div class="ecom-product-modal__backdrop" data-modal-close></div>
 
     <div class="ecom-product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ecom-modal-title">
-      <button type="button" class="ecom-product-modal__close" data-modal-close aria-label="Close">×</button>
+      <button
+        type="button"
+        class="ecom-product-modal__close"
+        data-modal-close
+        aria-label="{{ section.settings.close_label | escape }}"
+      >
+        <img src="{{ 'close-icon.svg' | asset_url }}" alt="" width="12" height="12">
+      </button>
 
       <div class="ecom-product-modal__top">
         <div class="ecom-product-modal__media">
-          <img data-modal-image src="" alt="" width="120" height="120" class="ecom-product-modal__image">
+          <img data-modal-image src="" alt="" width="120" height="140" class="ecom-product-modal__image">
         </div>
         <div class="ecom-product-modal__summary">
           <h2 id="ecom-modal-title" data-modal-title class="ecom-product-modal__title"></h2>
@@ -96,15 +120,18 @@
 
       <form class="ecom-product-modal__form" data-product-form>
         <div data-modal-options class="ecom-product-modal__options"></div>
-        <div data-modal-status class="ecom-product-modal__status" role="status"></div>
+
         <button type="submit" class="ecom-product-modal__add" data-add-to-cart>
-          <span data-add-to-cart-label>{{ section.settings.add_to_cart_label }}</span>
+          <span class="ecom-product-modal__add-label">{{ section.settings.add_to_cart_label }}</span>
           <span class="ecom-product-modal__add-arrow" aria-hidden="true"></span>
         </button>
+
+        {%- comment -%} Placed after the button so it never shifts the layout {%- endcomment -%}
+        <p data-modal-status class="ecom-product-modal__status" role="status" aria-live="polite"></p>
       </form>
     </div>
   </div>
-
+  
   {%- comment -%} Bonus product auto-added when Black + Medium is selected {%- endcomment -%}
   <script type="application/json" data-soft-winter-jacket>
     {%- if section.settings.soft_winter_jacket != blank -%}
