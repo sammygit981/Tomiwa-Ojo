@@ -24,7 +24,7 @@
         "product_3": { "type": "product", "settings": { "product": "chequered-red-shirt" } },
         "product_4": { "type": "product", "settings": { "product": "classic-leather-jacket" } },
         "product_5": { "type": "product", "settings": { "product": "classic-varsity-top" } },
-        "product_6": { "type": "product", "settings": { "product": "black-leather-bag" } }
+        "product_6": { "type": "product", "settings": { "product": "dark-denim-top" } }
       },
       "block_order": [
         "product_1",
