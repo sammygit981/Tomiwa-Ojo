@@ -171,7 +171,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   width: 100%;
   max-width: 1440px;
   aspect-ratio: 1440 / 780;
-  min-height: 620px;
   margin: 0 auto;
   background: #ffffff;
   overflow: hidden;
