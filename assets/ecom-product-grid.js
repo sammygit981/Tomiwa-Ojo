@@ -1,40 +1,27 @@
-/**
- * Ecom Product Grid
- * --------------------------------------------------------------------------
- * - A hotspot on each card opens a quick-view popup
- * - Options are rendered dynamically from the product data and always in the
- *   Figma order: colour first, then size, then anything else
- * - Nothing is preselected (matches the untouched state in the design)
- * - Add to cart uses the AJAX Cart API and appends the bonus product when the
- *   trigger option values (e.g. Black + Medium) are selected
- * - Every user facing string, icon and URL comes from Liquid
- * Vanilla JavaScript only.
- */
 (() => {
-  'use strict';
-
-  /** Element factory - keeps the builders readable and XSS-safe. */
-  const el = (tag, className, text) => {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text != null) node.textContent = text;
-    return node;
+  const COLOR_MAP = {
+    Red: '#8B2332',
+    Grey: '#9E9E9E',
+    Gray: '#9E9E9E',
+    Blue: '#1E3A5F',
+    Black: '#000000',
+    White: '#FFFFFF',
+    Green: '#2E5E4E',
+    Orange: '#E86C3A',
+    Yellow: '#E8C547',
+    Navy: '#1B2A49',
+    Pink: '#E8A0B0',
+    Brown: '#6B4423',
+    Purple: '#5C3D6E',
   };
 
-  /** Decorative <img> for the dropdown chevrons (paths come from Liquid). */
-  const icon = (src, className) => {
-    const img = el('img', className);
-    img.src = src;
-    img.alt = '';
-    return img;
-  };
+  const getColor = (name) => COLOR_MAP[name] || '#CCCCCC';
 
-  /** Colour options come before size options, everything else last. */
-  const optionRank = (name) => {
-    const value = name.toLowerCase();
-    if (value.includes('color') || value.includes('colour')) return 0;
-    if (value.includes('size')) return 1;
-    return 2;
+  const formatMoney = (cents) => {
+    if (window.Shopify?.formatMoney) {
+      return window.Shopify.formatMoney(cents);
+    }
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'EUR' }).format((cents || 0) / 100);
   };
 
   const initProductGrid = (root) => {
@@ -42,295 +29,273 @@
     root.dataset.initialized = 'true';
 
     const modal = root.querySelector('[data-product-modal]');
+    const triggers = root.querySelectorAll('[data-product-trigger]');
+    const jacketData = root.querySelector('[data-soft-winter-jacket]');
     const form = root.querySelector('[data-product-form]');
-    if (!modal || !form) return;
 
-    const ui = {
-      title: modal.querySelector('[data-modal-title]'),
-      price: modal.querySelector('[data-modal-price]'),
-      description: modal.querySelector('[data-modal-description]'),
-      image: modal.querySelector('[data-modal-image]'),
-      options: modal.querySelector('[data-modal-options]'),
-      status: modal.querySelector('[data-modal-status]'),
-      submit: modal.querySelector('[data-add-to-cart]'),
-    };
-
-    // Copy, icons and endpoints authored in the customizer / Liquid
-    const copy = modal.dataset;
-
-    // "Black, Medium" -> ['black', 'medium']
-    const bonusTriggers = (copy.bonusOptions || '')
-      .split(',')
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean);
-
-    let bonusProduct = null;
-    const bonusJson = root.querySelector('[data-bonus-product]');
-    if (bonusJson) {
+    let jacketProduct = null;
+    if (jacketData?.textContent.trim()) {
       try {
-        bonusProduct = JSON.parse(bonusJson.textContent);
-      } catch (error) {
-        bonusProduct = null;
+        jacketProduct = JSON.parse(jacketData.textContent);
+      } catch (e) {
+        jacketProduct = null;
       }
     }
 
-    const state = { product: null, variant: null, selections: {} };
+    let activeProduct = null;
+    let selectedSize = '';
 
-    const setStatus = (message) => {
-      ui.status.textContent = message || '';
+    const lockScroll = () => {
+      document.body.style.overflow = 'hidden';
     };
 
-    /** Resolve the variant as soon as every option has a value. */
-    const syncVariant = () => {
-      const names = state.product.options.map((option) => option.name);
-      const complete = names.every((name) => state.selections[name]);
-
-      state.variant = complete
-        ? state.product.variants.find((variant) =>
-            variant.options.every((value, index) => state.selections[names[index]] === value)
-          ) || null
-        : null;
-
-      if (state.variant) {
-        ui.price.textContent = state.variant.price_formatted;
-        setStatus(state.variant.available ? '' : copy.unavailable);
-      }
+    const unlockScroll = () => {
+      document.body.style.overflow = '';
     };
 
-    /** Colour / generic options: equal cells inside one outlined row. */
-    const buildSwatchGroup = (option, index, withSwatch) => {
-      const group = el('div', 'ecom-product-modal__option-group');
-      group.appendChild(el('span', 'ecom-product-modal__option-label', option.name));
+    const closeModal = () => {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      unlockScroll();
+      root.querySelectorAll('.ecom-product-modal__size-select.is-open').forEach((el) => {
+        el.classList.remove('is-open');
+        el.querySelector('[data-size-list]')?.setAttribute('hidden', '');
+      });
+    };
 
-      const row = el('div', 'ecom-product-modal__color-row');
-
-      option.values.forEach((value, valueIndex) => {
-        const id = `ecom-option-${index}-${valueIndex}`;
-        const cell = el('div', 'ecom-product-modal__color-option');
-
-        const input = el('input');
-        input.type = 'radio';
-        input.name = `ecom-option-${index}`;
-        input.id = id;
-        input.value = value;
-        // No `checked`: the popup opens with nothing selected, as designed
-        input.addEventListener('change', () => {
-          state.selections[option.name] = value;
-          syncVariant();
-        });
-
-        const label = el('label', 'ecom-product-modal__color-label');
-        label.setAttribute('for', id);
-
-        if (withSwatch) {
-          const swatch = el('span', 'ecom-product-modal__color-swatch');
-          // CSS named colours resolve on their own, anything else keeps the CSS fallback
-          if (window.CSS && CSS.supports('color', value)) swatch.style.background = value;
-          label.appendChild(swatch);
+    const getSelectedOptions = () => {
+      const selected = {};
+      modal.querySelectorAll('[data-option-name]').forEach((group) => {
+        const name = group.dataset.optionName;
+        if (group.dataset.optionType === 'color') {
+          const checked = group.querySelector('input[type="radio"]:checked');
+          if (checked) selected[name] = checked.value;
+        } else if (group.dataset.optionType === 'size') {
+          if (selectedSize) selected[name] = selectedSize;
+        } else if (group.dataset.optionType === 'generic') {
+          const checked = group.querySelector('input[type="radio"]:checked');
+          if (checked) selected[name] = checked.value;
         }
+      });
+      return selected;
+    };
 
-        label.appendChild(el('span', null, value));
-        cell.append(input, label);
-        row.appendChild(cell);
+    const findVariant = (product, selections) => {
+      if (!product?.variants?.length) return null;
+      return (
+        product.variants.find((variant) =>
+          variant.options.every((opt, i) => {
+            const optionName = product.options[i]?.name;
+            return selections[optionName] === opt;
+          })
+        ) || product.variants.find((v) => v.available) || product.variants[0]
+      );
+    };
+
+    const buildColorSelector = (option, index) => {
+      const group = document.createElement('div');
+      group.className = 'ecom-product-modal__option-group';
+      group.dataset.optionName = option.name;
+      group.dataset.optionType = 'color';
+
+      const label = document.createElement('div');
+      label.className = 'ecom-product-modal__option-label';
+      label.textContent = option.name;
+      group.appendChild(label);
+
+      const row = document.createElement('div');
+      row.className = 'ecom-product-modal__color-row';
+
+      option.values.slice(0, 2).forEach((value, idx) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'ecom-product-modal__color-option';
+        const id = `color-opt-${index}-${idx}`;
+        wrap.innerHTML = `
+          <input type="radio" name="option-color-${index}" id="${id}" value="${value}" ${idx === 0 ? 'checked' : ''}>
+          <label class="ecom-product-modal__color-label" for="${id}">
+            <span class="ecom-product-modal__color-swatch" style="background:${getColor(value)}"></span>
+            <span>${value}</span>
+          </label>`;
+        row.appendChild(wrap);
       });
 
       group.appendChild(row);
       return group;
     };
 
-    /** Size option: custom dropdown that starts on the placeholder. */
-    const buildSizeGroup = (option) => {
-      const group = el('div', 'ecom-product-modal__option-group');
-      group.appendChild(el('span', 'ecom-product-modal__option-label', option.name));
+    const buildSizeDropdown = (option, index) => {
+      const group = document.createElement('div');
+      group.className = 'ecom-product-modal__option-group';
+      group.dataset.optionName = option.name;
+      group.dataset.optionType = 'size';
 
-      const select = el('div', 'ecom-product-modal__size-select');
+      const label = document.createElement('div');
+      label.className = 'ecom-product-modal__option-label';
+      label.textContent = option.name;
+      group.appendChild(label);
 
-      const trigger = el('button', 'ecom-product-modal__size-trigger');
-      trigger.type = 'button';
-      trigger.setAttribute('aria-haspopup', 'listbox');
-      trigger.setAttribute('aria-expanded', 'false');
-
-      const value = el('span', 'ecom-product-modal__size-value', copy.sizePlaceholder);
-
-      const cell = el('span', 'ecom-product-modal__size-cell');
-      cell.append(
-        icon(copy.iconDown, 'ecom-product-modal__size-chevron ecom-product-modal__size-chevron--down'),
-        icon(copy.iconUp, 'ecom-product-modal__size-chevron ecom-product-modal__size-chevron--up')
-      );
-
-      trigger.append(value, cell);
-
-      const list = el('ul', 'ecom-product-modal__size-list');
-      list.setAttribute('role', 'listbox');
-
-      const toggle = (open) => {
-        select.classList.toggle('is-open', open);
-        trigger.setAttribute('aria-expanded', String(open));
-      };
-
-      trigger.addEventListener('click', () => toggle(!select.classList.contains('is-open')));
-
-      /** Cross-fades the trigger text so the choice feels smooth. */
-      const showValue = (text) => {
-        value.classList.add('is-fading');
-        window.setTimeout(() => {
-          value.textContent = text;
-          value.classList.remove('is-fading');
-        }, 150);
-      };
-
-      option.values.forEach((optionValue) => {
-        const item = el('li', 'ecom-product-modal__size-option', optionValue);
-        item.setAttribute('role', 'option');
-        item.addEventListener('click', () => {
-          state.selections[option.name] = optionValue;
-          showValue(optionValue);
-          list.querySelectorAll('.ecom-product-modal__size-option')
-            .forEach((node) => node.classList.remove('is-selected'));
-          item.classList.add('is-selected');
-          toggle(false);
-          syncVariant();
-        });
-        list.appendChild(item);
+      const select = document.createElement('div');
+      select.className = 'ecom-product-modal__size-select';
+            select.innerHTML = `
+        <button type="button" class="ecom-product-modal__size-trigger" data-size-trigger>
+          <span data-size-label>Choose your size</span>
+          <span class="ecom-product-modal__size-arrow" aria-hidden="true">
+            <span class="ecom-product-modal__size-chevron"></span>
+          </span>
+        </button>
+        <ul class="ecom-product-modal__size-list" data-size-list hidden></ul>`;
+      const list = select.querySelector('[data-size-list]');
+      option.values.forEach((value, idx) => {
+        const li = document.createElement('li');
+        li.className = 'ecom-product-modal__size-option';
+        li.textContent = value;
+        li.dataset.value = value;
+        if (idx === 0) {
+          li.classList.add('is-selected');
+          selectedSize = value;
+          select.querySelector('[data-size-label]').textContent = value;
+        }
+        list.appendChild(li);
       });
 
-      select.append(trigger, list);
+      const trigger = select.querySelector('[data-size-trigger]');
+      trigger.addEventListener('click', () => {
+        const isOpen = select.classList.toggle('is-open');
+        list.toggleAttribute('hidden', !isOpen);
+      });
+
+      list.querySelectorAll('.ecom-product-modal__size-option').forEach((item) => {
+        item.addEventListener('click', () => {
+          selectedSize = item.dataset.value;
+          select.querySelector('[data-size-label]').textContent = selectedSize;
+          list.querySelectorAll('.ecom-product-modal__size-option').forEach((el) => el.classList.remove('is-selected'));
+          item.classList.add('is-selected');
+          select.classList.remove('is-open');
+          list.setAttribute('hidden', '');
+        });
+      });
+
       group.appendChild(select);
       return group;
     };
 
     const buildOptions = (product) => {
-      ui.options.replaceChildren();
+      const container = modal.querySelector('[data-modal-options]');
+      container.innerHTML = '';
+      selectedSize = '';
 
-      // Keep the original index (used for the radio group name) while reordering
-      [...(product.options || [])]
-        .map((option, index) => ({ option, index }))
-        .sort((a, b) => optionRank(a.option.name) - optionRank(b.option.name))
-        .forEach(({ option, index }) => {
-          if (!option.values || !option.values.length) return;
+      (product.options || []).forEach((option, i) => {
+        if (!option.values || option.values.length < 2) return;
 
-          // A single-value option has nothing to choose: lock it in silently
-          if (option.values.length === 1) {
-            state.selections[option.name] = option.values[0];
-            return;
-          }
-
-          const name = option.name.toLowerCase();
-          if (name.includes('color') || name.includes('colour')) {
-            ui.options.appendChild(buildSwatchGroup(option, index, true));
-          } else if (name.includes('size')) {
-            ui.options.appendChild(buildSizeGroup(option));
-          } else {
-            ui.options.appendChild(buildSwatchGroup(option, index, false));
-          }
-        });
-    };
-
-    const closeAllDropdowns = () => {
-      modal.querySelectorAll('.ecom-product-modal__size-select.is-open').forEach((select) => {
-        select.classList.remove('is-open');
-        select.querySelector('.ecom-product-modal__size-trigger')?.setAttribute('aria-expanded', 'false');
+        const nameLower = option.name.toLowerCase();
+        if (nameLower.includes('color') || nameLower.includes('colour')) {
+          container.appendChild(buildColorSelector(option, i));
+        } else if (nameLower.includes('size')) {
+          container.appendChild(buildSizeDropdown(option, i));
+        } else {
+          const group = document.createElement('div');
+          group.className = 'ecom-product-modal__option-group';
+          group.dataset.optionName = option.name;
+          group.dataset.optionType = 'generic';
+          group.innerHTML = `<div class="ecom-product-modal__option-label">${option.name}</div>`;
+          const row = document.createElement('div');
+          row.className = 'ecom-product-modal__color-row';
+          option.values.slice(0, 2).forEach((value, idx) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'ecom-product-modal__color-option';
+            const id = `generic-opt-${i}-${idx}`;
+            wrap.innerHTML = `
+              <input type="radio" name="option-generic-${i}" id="${id}" value="${value}" ${idx === 0 ? 'checked' : ''}>
+              <label class="ecom-product-modal__color-label" for="${id}"><span>${value}</span></label>`;
+            row.appendChild(wrap);
+          });
+          group.appendChild(row);
+          container.appendChild(group);
+        }
       });
     };
 
     const openModal = (product) => {
-      state.product = product;
-      state.variant = null;
-      state.selections = {};
-
-      ui.title.textContent = product.title;
-      ui.price.textContent = product.price_formatted;
-      ui.description.innerHTML = product.description || '';
-      ui.image.src = product.featured_image || '';
-      ui.image.alt = product.title;
-      setStatus('');
+      activeProduct = product;
+      modal.querySelector('[data-modal-title]').textContent = product.title;
+      modal.querySelector('[data-modal-price]').textContent = formatMoney(product.price);
+      modal.querySelector('[data-modal-description]').innerHTML = product.description || '';
+      modal.querySelector('[data-modal-image]').src = product.featured_image || '';
+      modal.querySelector('[data-modal-image]').alt = product.title;
+      modal.querySelector('[data-modal-status]').textContent = '';
 
       buildOptions(product);
 
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      lockScroll();
     };
 
-    const closeModal = () => {
-      closeAllDropdowns();
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    };
-
-    // Hotspots
-    root.querySelectorAll('[data-product-trigger]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const data = button.closest('[data-product-card]')?.querySelector('[data-product-data]');
-        if (!data) return;
+    triggers.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('[data-product-card]');
+        const dataEl = card?.querySelector('[data-product-data]');
+        if (!dataEl) return;
         try {
-          openModal(JSON.parse(data.textContent));
-        } catch (error) {
-          console.error('Ecom grid: invalid product data', error);
+          openModal(JSON.parse(dataEl.textContent));
+        } catch (e) {
+          console.error('Product data parse error', e);
         }
       });
     });
 
-    modal.querySelectorAll('[data-modal-close]').forEach((node) => {
-      node.addEventListener('click', closeModal);
+    modal.querySelectorAll('[data-modal-close]').forEach((el) => {
+      el.addEventListener('click', closeModal);
     });
 
-    // Any click outside a dropdown closes it
-    modal.addEventListener('click', (event) => {
-      if (!event.target.closest('.ecom-product-modal__size-select')) closeAllDropdowns();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || !modal.classList.contains('is-open')) return;
-      if (modal.querySelector('.ecom-product-modal__size-select.is-open')) closeAllDropdowns();
-      else closeModal();
-    });
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeProduct) return;
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (!state.product) return;
-
-      if (!state.variant) {
-        setStatus(copy.selectOptions);
+      const selections = getSelectedOptions();
+      const variant = findVariant(activeProduct, selections);
+      if (!variant) {
+        modal.querySelector('[data-modal-status]').textContent = 'Please select options';
         return;
       }
 
-      if (!state.variant.available) {
-        setStatus(copy.unavailable);
+      if (!variant.available) {
+        modal.querySelector('[data-modal-status]').textContent = 'Variant unavailable';
         return;
       }
 
-      const chosen = Object.values(state.selections).map((value) => value.toLowerCase());
-      const wantsBonus = bonusTriggers.length > 0 && bonusTriggers.every((t) => chosen.includes(t));
+      const selectedValues = Object.values(selections);
+      const isBlackMedium =
+        selectedValues.some((v) => v.toLowerCase() === 'black') &&
+        selectedValues.some((v) => v.toLowerCase() === 'medium');
 
-      const items = [{ id: state.variant.id, quantity: 1 }];
+      const items = [{ id: variant.id, quantity: 1 }];
 
-      if (wantsBonus && bonusProduct) {
-        const bonusVariant =
-          bonusProduct.variants.find((variant) => variant.available) || bonusProduct.variants[0];
-        if (bonusVariant) items.push({ id: bonusVariant.id, quantity: 1 });
+      if (isBlackMedium && jacketProduct?.variants?.[0]?.id) {
+        items.push({ id: jacketProduct.variants[0].id, quantity: 1 });
       }
 
-      ui.submit.setAttribute('aria-busy', 'true');
-      setStatus('');
+      const status = modal.querySelector('[data-modal-status]');
+      status.textContent = 'Adding...';
 
       try {
-        const response = await fetch(copy.cartAddUrl, {
+        const res = await fetch(`${window.Shopify?.routes?.root || '/'}cart/add.js`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ items }),
         });
 
-        if (!response.ok) throw new Error('Cart add failed');
-
-        setStatus(copy.added);
-        // Let the theme know the cart changed so any cart UI can refresh
-        document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
-      } catch (error) {
-        setStatus(copy.error);
-      } finally {
-        ui.submit.removeAttribute('aria-busy');
+        if (res.ok) {
+          status.textContent = 'Added to cart!';
+        } else {
+          throw new Error('Cart add failed');
+        }
+      } catch {
+        status.textContent = 'Error adding to cart';
       }
     });
   };
@@ -345,9 +310,8 @@
     boot();
   }
 
-  // Re-init after a customizer reload
-  document.addEventListener('shopify:section:load', (event) => {
-    const section = event.target.querySelector('[data-ecom-product-grid-section]');
+  document.addEventListener('shopify:section:load', (e) => {
+    const section = e.target.querySelector('[data-ecom-product-grid-section]');
     if (section) {
       section.dataset.initialized = 'false';
       initProductGrid(section);
