@@ -1,402 +1,425 @@
-/*
- * Ecom Product Grid
- *
- * The grid uses CSS Grid for a predictable responsive layout while keeping
- * product-card structure independent from the theme's existing components.
- */
+/* ==========================================================================
+   Ecom Product Grid
+   Figma frame : 1337 x 981, vertical auto-layout, gap 30px
+   Card        : 433 x 444  (3 columns: 3*433 + 2*19 = 1337)
+   Hotspot     : ellipse 22x22 #F8F8F8E5 (no stroke)
+                 + "+" 8.46 x 8.46 with 1.5px strokes
+   ========================================================================== */
 
-.ecom-product-grid {
-  width: 100%;
+/* Section padding = the gap between the banner strip and this section */
+.section-ecom-product-grid {
   background: #ffffff;
+  padding: 60px 0 80px;
 }
 
+/* Figma frame: vertical auto-layout, 30px between heading and grid */
 .ecom-product-grid__inner {
-  width: 100%;
-  max-width: 1440px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: min(1337px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 80px 56px;
-}
-
-.ecom-product-grid__header {
-  margin-bottom: 40px;
 }
 
 .ecom-product-grid__heading {
-  margin: 0;
-  font-family: "Jost", sans-serif;
-  font-size: 42px;
-  font-weight: 500;
-  line-height: 1.1;
+  margin: 0; /* spacing is handled by the 30px auto-layout gap */
+  font-family: "Lustria", serif;
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.2em;
   color: #000000;
 }
 
+/* 3 x 2 grid. 1337 - (2 * 19) = 1299 -> 433 per column */
 .ecom-product-grid__items {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px 24px;
-}
-
-.ecom-product-card {
-  min-width: 0;
-}
-
-.ecom-product-card__trigger {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 19px;
+  row-gap: 20px;
 }
 
 .ecom-product-card__media {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 433 / 444;
   overflow: hidden;
   background: #f5f5f5;
 }
 
+/* Shown only when a block has no product picked yet (keeps the 6-up layout) */
+.ecom-product-card__media--empty {
+  background: #efefef;
+}
+
 .ecom-product-card__image {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  display: block;
 }
 
-.ecom-product-card__trigger:hover .ecom-product-card__image {
-  transform: scale(1.03);
-}
-
-.ecom-product-card__details {
+/* --------------------------------------------------------------------------
+   Hotspot — Ellipse 22 x 22, background #F8F8F8E5, NO stroke
+   -------------------------------------------------------------------------- */
+.product-hotspot,
+.ecom-product-hotspot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(248, 248, 248, 0.9); /* #F8F8F8E5 */
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  padding-top: 16px;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 200ms ease, background-color 200ms ease;
 }
 
-.ecom-product-card__title,
-.ecom-product-card__price {
-  margin: 0;
-  font-family: "Jost", sans-serif;
-  color: #000000;
+.product-hotspot:hover,
+.ecom-product-hotspot:hover {
+  background: #ffffff;
+  transform: translate(-50%, -50%) scale(1.12);
 }
 
-.ecom-product-card__title {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.3;
+/* The "+" : 8.4615 x 8.4615 box, NO border on the box itself,
+   only the two 1.5px inner strokes that form the plus. */
+.product-hotspot__plus {
+  position: relative;
+  width: 8.4615px;
+  height: 8.4615px;
+  border: 0;
+  background: transparent;
+  box-sizing: border-box;
 }
 
-.ecom-product-card__price {
-  flex-shrink: 0;
-  font-size: 16px;
-  line-height: 1.3;
+.product-hotspot__plus::before,
+.product-hotspot__plus::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #000000;
+  transform: translate(-50%, -50%);
 }
 
-/*
- * Product modal
- *
- * The modal is hidden until a product card is activated. Visibility and
- * accessibility state are controlled by the companion vanilla JavaScript.
- */
+.product-hotspot__plus::before { width: 1.5px; height: 100%; } /* vertical */
+.product-hotspot__plus::after  { width: 100%; height: 1.5px; } /* horizontal */
 
+/* Hotspot positions — % of the 433 x 444 card, in visual slot order */
+.ecom-product-hotspot--1 { left: 59.26%; top: 53.60%; } /* bag        */
+.ecom-product-hotspot--2 { left: 82.04%; top: 50.00%; } /* tuxedo     */
+.ecom-product-hotspot--3 { left: 60.28%; top: 18.47%; } /* red shirt  */
+.ecom-product-hotspot--4 { left: 69.63%; top: 16.00%; } /* leather    */
+.ecom-product-hotspot--5 { left: 49.07%; top: 23.42%; } /* varsity    */
+.ecom-product-hotspot--6 { left: 73.85%; top: 36.94%; } /* denim      */
+
+/* ==========================================================================
+   Quick-view modal
+   ========================================================================== */
 .ecom-product-modal {
   position: fixed;
   inset: 0;
-  z-index: 1000;
-  display: none;
+  z-index: 999999;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
 
 .ecom-product-modal.is-open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .ecom-product-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .ecom-product-modal__dialog {
   position: relative;
-  z-index: 1;
-  width: min(100%, 980px);
-  max-height: calc(100vh - 48px);
+  width: 311px;
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
   background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .ecom-product-modal__close {
   position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
+  top: 8px;
+  right: 10px;
+  z-index: 3;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
-  background: #ffffff;
-  color: #000000;
-  font-size: 30px;
+  background: transparent;
+  font-size: 20px;
   line-height: 1;
+  color: #000000;
   cursor: pointer;
 }
 
-.ecom-product-modal__content {
+.ecom-product-modal__top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 16px 16px 12px;
 }
 
 .ecom-product-modal__media {
-  min-height: 500px;
+  width: 120px;
+  height: 120px;
   background: #f5f5f5;
+  overflow: hidden;
 }
 
 .ecom-product-modal__image {
-  display: block;
   width: 100%;
   height: 100%;
-  min-height: 500px;
   object-fit: cover;
 }
 
-.ecom-product-modal__details {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 56px;
-}
+.ecom-product-modal__summary { min-width: 0; }
 
 .ecom-product-modal__title {
-  margin: 0;
+  margin: 0 0 4px;
   font-family: "Jost", sans-serif;
-  font-size: 40px;
   font-weight: 500;
-  line-height: 1.1;
+  font-size: 14px;
+  line-height: 1.3;
   color: #000000;
 }
 
 .ecom-product-modal__price {
-  margin-top: 16px;
+  margin-bottom: 8px;
   font-family: "Jost", sans-serif;
-  font-size: 20px;
+  font-weight: 400;
+  font-size: 14px;
   color: #000000;
 }
 
 .ecom-product-modal__description {
-  margin-top: 28px;
   font-family: "Jost", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1.4;
   color: #000000;
 }
 
-.ecom-product-modal__description p {
-  margin: 0 0 12px;
-}
+.ecom-product-modal__description p { margin: 0; }
 
-.ecom-product-modal__description p:last-child {
-  margin-bottom: 0;
-}
-
-.ecom-product-modal__form {
-  margin-top: 32px;
-}
+.ecom-product-modal__form { padding: 0 16px 16px; }
 
 .ecom-product-modal__options {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-}
-
-.ecom-product-modal__option {
-  margin: 0;
-  padding: 0;
-  border: 0;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .ecom-product-modal__option-label {
-  display: block;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   font-family: "Jost", sans-serif;
-  font-size: 15px;
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 12px;
   color: #000000;
 }
 
-.ecom-product-modal__option-values {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Colour: two-up segmented control */
+.ecom-product-modal__color-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #000000;
 }
 
-.ecom-product-modal__option-value {
-  position: relative;
-}
+.ecom-product-modal__color-option { position: relative; }
 
-.ecom-product-modal__option-value input {
+.ecom-product-modal__color-option input {
   position: absolute;
-  width: 1px;
-  height: 1px;
   opacity: 0;
   pointer-events: none;
 }
 
-.ecom-product-modal__option-value label {
-  display: block;
-  min-width: 54px;
-  padding: 11px 16px;
-  border: 1px solid #000000;
+.ecom-product-modal__color-label {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding-right: 8px;
   background: #ffffff;
+  color: #000000;
   font-family: "Jost", sans-serif;
-  font-size: 14px;
-  text-align: center;
+  font-size: 12px;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  border-right: 1px solid #000000;
 }
 
-.ecom-product-modal__option-value input:checked + label {
+.ecom-product-modal__color-option:last-child .ecom-product-modal__color-label {
+  border-right: 0;
+}
+
+.ecom-product-modal__color-swatch {
+  width: 6px;
+  height: 100%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.ecom-product-modal__color-option input:checked + .ecom-product-modal__color-label {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Size dropdown */
+.ecom-product-modal__size-select { position: relative; }
+
+.ecom-product-modal__size-trigger {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background: #f5f5f5;
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.ecom-product-modal__size-chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid #000000;
+  border-bottom: 1.5px solid #000000;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 200ms ease;
+}
+
+.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron {
+  transform: rotate(-135deg) translateY(2px);
+}
+
+.ecom-product-modal__size-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2px);
+  z-index: 5;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.ecom-product-modal__size-list[hidden] { display: none; }
+
+.ecom-product-modal__size-option {
+  padding: 10px 12px;
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ecom-product-modal__size-option:hover,
+.ecom-product-modal__size-option.is-selected {
   background: #000000;
   color: #ffffff;
 }
 
 .ecom-product-modal__status {
-  min-height: 22px;
-  margin-top: 18px;
+  min-height: 18px;
+  margin-bottom: 8px;
   font-family: "Jost", sans-serif;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.ecom-product-modal__status.is-error {
-  color: #b42318;
-}
-
-.ecom-product-modal__status.is-success {
-  color: #16794a;
+  font-size: 11px;
+  color: #000000;
 }
 
 .ecom-product-modal__add {
+  width: 100%;
+  height: 45px;
+  padding: 13px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  min-height: 52px;
-  margin-top: 12px;
-  padding: 0 20px;
   border: 0;
   background: #000000;
   color: #ffffff;
   font-family: "Jost", sans-serif;
+  font-weight: 400;
   font-size: 14px;
+  line-height: 20.48px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.ecom-product-modal__add:hover {
-  background: #222222;
-}
-
-.ecom-product-modal__add:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }
 
 .ecom-product-modal__add-arrow {
-  transition: transform 0.25s ease;
+  position: relative;
+  width: 24px;
+  height: 1.5px;
+  background: #ffffff;
 }
 
-.ecom-product-modal__add:hover .ecom-product-modal__add-arrow {
-  transform: translateX(6px);
+.ecom-product-modal__add-arrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid #ffffff;
+  border-right: 1.5px solid #ffffff;
+  transform: translateY(-50%) rotate(45deg);
+  box-sizing: border-box;
 }
 
-body.ecom-product-modal-open {
-  overflow: hidden;
-}
-
-@media screen and (max-width: 989px) {
-  .ecom-product-grid__inner {
-    padding: 60px 32px;
-  }
-
-  .ecom-product-grid__items {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .ecom-product-modal__content {
-    grid-template-columns: 1fr;
-  }
-
-  .ecom-product-modal__media,
-  .ecom-product-modal__image {
-    min-height: 360px;
-  }
-
-  .ecom-product-modal__details {
-    padding: 40px 32px;
-  }
-}
-
+/* ==========================================================================
+   Mobile — 342 wide inner, 2 x 169 columns, 4px gap
+   ========================================================================== */
 @media screen and (max-width: 749px) {
+  .section-ecom-product-grid { padding: 30px 0 40px; }
+
   .ecom-product-grid__inner {
-    padding: 48px 20px;
+    width: min(342px, calc(100% - 32px));
+    gap: 20px;
   }
 
-  .ecom-product-grid__heading {
-    font-size: 32px;
-  }
+  .ecom-product-grid__heading { font-size: 24px; }
 
   .ecom-product-grid__items {
-    grid-template-columns: 1fr;
-    gap: 32px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 4px;
+    row-gap: 4px;
   }
 
-  .ecom-product-card__details {
-    gap: 12px;
+  .ecom-product-card__media { aspect-ratio: 169 / 186.42; }
+
+  .product-hotspot,
+  .ecom-product-hotspot {
+    width: 15.71px;
+    height: 15.71px;
   }
 
-  .ecom-product-card__title {
-    font-size: 16px;
+  .product-hotspot__plus {
+    width: 6.04px;
+    height: 6.04px;
   }
 
-  .ecom-product-card__price {
-    font-size: 15px;
-  }
-
-  .ecom-product-modal {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .ecom-product-modal__dialog {
-    width: 100%;
-    max-height: 94vh;
-  }
-
-  .ecom-product-modal__media,
-  .ecom-product-modal__image {
-    min-height: 280px;
-  }
-
-  .ecom-product-modal__details {
-    padding: 32px 20px 36px;
-  }
-
-  .ecom-product-modal__title {
-    font-size: 30px;
-  }
+  .ecom-product-modal__dialog { width: min(311px, calc(100vw - 32px)); }
 }

@@ -1,0 +1,123 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Lustria&display=swap" rel="stylesheet">
+{{ 'tisso-banner.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tisso-banner.js' | asset_url }}" defer="defer"></script>
+
+<section class="tisso-banner" data-tisso-banner>
+  <header class="tisso-header" data-tisso-header>
+    <div class="tisso-header__desktop">
+      <a class="tisso-header__logo" href="{{ routes.root_url }}">{{ section.settings.header_logo_text }}</a>
+      <p class="tisso-header__message">{{ section.settings.header_message_text }}</p>
+      <a class="tisso-header__gift-button" href="{{ section.settings.header_gift_link | default: '#' }}">
+        <span class="tisso-header__gift-text">{{ section.settings.header_gift_button_text }}</span>
+        <span class="tisso-header__gift-arrow" aria-hidden="true"><span></span></span>
+      </a>
+    </div>
+
+    <div class="tisso-header__mobile">
+      <button
+        type="button"
+        class="tisso-header__menu-button"
+        data-tisso-menu-open
+        aria-expanded="false"
+        aria-label="Open menu"
+      >
+        <span class="tisso-header__menu-icon" aria-hidden="true">
+          <span></span><span></span>
+        </span>
+      </button>
+      <a class="tisso-header__mobile-logo" href="{{ routes.root_url }}">{{ section.settings.header_logo_text }}</a>
+    </div>
+
+    <div class="tisso-menu" data-tisso-menu aria-hidden="true">
+      <div class="tisso-menu__bar">
+        <button type="button" class="tisso-menu__close" data-tisso-menu-close aria-label="Close menu">
+          <span aria-hidden="true">×</span>
+        </button>
+        <span class="tisso-menu__logo">{{ section.settings.header_logo_text }}</span>
+      </div>
+      <div class="tisso-menu__content">
+        <p>{{ section.settings.header_message_text }}</p>
+        <a class="tisso-menu__gift-button" href="{{ section.settings.header_gift_link | default: '#' }}">
+          <span>{{ section.settings.header_gift_button_text }}</span>
+          <span class="tisso-menu__gift-arrow" aria-hidden="true"><span></span></span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="tisso-gift-banner__frame">
+    <div class="tisso-gift-banner__illustrations" aria-hidden="true">
+          {%- comment -%} width/height = Figma artboard sizes so the SVG ratio is locked {%- endcomment -%}
+      <img
+        src="{{ 'gift-illustration-top.svg' | asset_url }}"
+        alt=""
+        width="1440"
+        height="390"
+        class="tisso-gift-banner__illus tisso-gift-banner__illus-top"
+      >
+      <img
+        src="{{ 'gift-illustration-bottom.svg' | asset_url }}"
+        alt=""
+        width="890"
+        height="402"
+        class="tisso-gift-banner__illus tisso-gift-banner__illus-bottom"
+        loading="lazy"
+      >
+    </div>
+
+    <div class="tisso-gift-banner__content">
+      <h1 class="tisso-gift-banner__title">{{ section.settings.banner_title }}</h1>
+      <p class="tisso-gift-banner__description tisso-gift-banner__description--desktop">{{ section.settings.banner_description }}</p>
+      <p class="tisso-gift-banner__description tisso-gift-banner__description--mobile">{{ section.settings.banner_description_mobile }}</p>
+      <a class="tisso-gift-banner__cta" href="{{ section.settings.banner_cta_link | default: '#' }}">
+        <span>{{ section.settings.banner_cta_label }}</span>
+        <span class="tisso-gift-banner__cta-arrow" aria-hidden="true"></span>
+      </a>
+    </div>
+  </div>
+
+  <p class="tisso-gift-banner__strip tisso-gift-banner__strip--desktop">{{ section.settings.banner_strip_text }}</p>
+  <p class="tisso-gift-banner__strip tisso-gift-banner__strip--mobile">{{ section.settings.banner_strip_text_mobile }}</p>
+</section>
+
+{% schema %}
+{
+  "name": "Tisso Banner",
+  "settings": [
+    { "type": "text", "id": "header_logo_text", "label": "Header logo text", "default": "TISSO VISON" },
+    { "type": "text", "id": "header_message_text", "label": "Header message", "default": "Find the ideal gift for your loved ones." },
+    { "type": "text", "id": "header_gift_button_text", "label": "Header gift button", "default": "CHOOSE GIFT" },
+    { "type": "url", "id": "header_gift_link", "label": "Header gift link" },
+    { "type": "text", "id": "banner_title", "label": "Banner title", "default": "The Gift Guide" },
+    {
+      "type": "textarea",
+      "id": "banner_description",
+      "label": "Banner description (desktop)",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination.\nExplore our curated selection and find the perfect gifts to delight your loved ones this holiday season."
+    },
+    {
+      "type": "text",
+      "id": "banner_description_mobile",
+      "label": "Banner description (mobile)",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination."
+    },
+    { "type": "text", "id": "banner_cta_label", "label": "Banner CTA label", "default": "SHOP NOW" },
+    { "type": "url", "id": "banner_cta_link", "label": "Banner CTA link" },
+    {
+      "type": "text",
+      "id": "banner_strip_text",
+      "label": "Strip text (desktop)",
+      "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+    },
+    {
+      "type": "text",
+      "id": "banner_strip_text_mobile",
+      "label": "Strip text (mobile)",
+      "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
+    }
+  ],
+  "presets": [{ "name": "Tisso Banner" }]
+}
+{% endschema %}

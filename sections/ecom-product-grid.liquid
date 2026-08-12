@@ -1,191 +1,124 @@
+{%- comment -%}
+  Ecom Product Grid
+  - 6 product blocks, each selectable from the customizer
+  - Every block renders a card (even when empty) so the 3x2 layout,
+    and therefore the hotspot numbering, always matches the design
+  - Product data is printed once per card as JSON for the quick-view modal
+{%- endcomment -%}
+
 {{ 'ecom-product-grid.css' | asset_url | stylesheet_tag }}
 
-<section
-  class="ecom-product-grid"
-  id="EcomProductGrid-{{ section.id }}"
->
+<section class="section-ecom-product-grid" data-ecom-product-grid-section>
   <div class="ecom-product-grid__inner">
-
-    {% if section.settings.heading != blank %}
-      <header class="ecom-product-grid__header">
-        <h2 class="ecom-product-grid__heading">
-          {{ section.settings.heading }}
-        </h2>
-      </header>
-    {% endif %}
+    <h2 class="ecom-product-grid__heading">{{ section.settings.heading }}</h2>
 
     <div class="ecom-product-grid__items">
+      {%- for block in section.blocks -%}
+        {%- assign product = block.settings.product -%}
 
-      {% for block in section.blocks %}
-        {% assign product = block.settings.product %}
+        {%- comment -%} forloop.index == the visual slot, so hotspot--N always lines up {%- endcomment -%}
+        <article
+          class="ecom-product-card ecom-product-card--{{ forloop.index }}"
+          data-product-card
+          {{ block.shopify_attributes }}
+        >
+          <div class="ecom-product-card__media{% if product == blank %} ecom-product-card__media--empty{% endif %}">
+            {%- if product != blank -%}
+              {%- if product.featured_image -%}
+                {{
+                  product.featured_image
+                  | image_url: width: 900
+                  | image_tag: class: 'ecom-product-card__image', loading: 'lazy', alt: product.title
+                }}
+              {%- endif -%}
 
-        {% if product != blank %}
-          <article
-            class="ecom-product-card"
-            {{ block.shopify_attributes }}
-            data-product-card
-            data-product-id="{{ product.id }}"
-          >
-            <button
-              type="button"
-              class="ecom-product-card__trigger"
-              data-product-trigger
-              aria-label="View {{ product.title }}"
-            >
-              <div class="ecom-product-card__media">
-                {% if product.featured_image %}
-                  {{
-                    product.featured_image
-                    | image_url: width: 900
-                    | image_tag:
-                      loading: 'lazy',
-                      widths: '360, 540, 720, 900',
-                      sizes: '(min-width: 990px) 33vw, 50vw',
-                      class: 'ecom-product-card__image',
-                      alt: product.featured_image.alt | default: product.title
-                  }}
-                {% else %}
-                  {{ 'product-1' | placeholder_svg_tag: 'ecom-product-card__image ecom-product-card__image--placeholder' }}
-                {% endif %}
-              </div>
+              <button
+                type="button"
+                class="product-hotspot ecom-product-hotspot ecom-product-hotspot--{{ forloop.index }}"
+                data-product-trigger
+                aria-label="Quick view: {{ product.title | escape }}"
+              >
+                <span class="product-hotspot__plus" aria-hidden="true"></span>
+              </button>
 
-              <div class="ecom-product-card__details">
-                <h3 class="ecom-product-card__title">
-                  {{ product.title }}
-                </h3>
-
-                <span class="ecom-product-card__price">
-                  {{ product.price | money }}
-                </span>
-              </div>
-            </button>
-
-            {%- comment -%}
-              Product data is serialized server-side so the popup can render
-              product information dynamically without duplicating product
-              content in the section markup.
-            {%- endcomment -%}
-            <script type="application/json" data-product-data>
-              {{ product | json }}
-            </script>
-          </article>
-        {% endif %}
-      {% endfor %}
-
+              <script type="application/json" data-product-data>
+                {
+                  "id": {{ product.id }},
+                  "title": {{ product.title | json }},
+                  "description": {{ product.description | json }},
+                  "price": {{ product.price }},
+                  "featured_image": {{ product.featured_image | image_url: width: 800 | json }},
+                  "options": [
+                    {%- for option in product.options_with_values -%}
+                      {
+                        "name": {{ option.name | json }},
+                        "values": {{ option.values | json }}
+                      }{% unless forloop.last %},{% endunless %}
+                    {%- endfor -%}
+                  ],
+                  "variants": [
+                    {%- for variant in product.variants -%}
+                      {
+                        "id": {{ variant.id }},
+                        "title": {{ variant.title | json }},
+                        "price": {{ variant.price }},
+                        "available": {{ variant.available }},
+                        "options": {{ variant.options | json }}
+                      }{% unless forloop.last %},{% endunless %}
+                    {%- endfor -%}
+                  ]
+                }
+              </script>
+            {%- endif -%}
+          </div>
+        </article>
+      {%- endfor -%}
     </div>
   </div>
 
-  {%- comment -%}
-    The modal is intentionally part of this custom Grid section. This keeps
-    the implementation within the two-section structure required by the test
-    while allowing each product card to open the same reusable product dialog.
-  {%- endcomment -%}
-  <div
-    class="ecom-product-modal"
-    data-product-modal
-    aria-hidden="true"
-  >
-    <div
-      class="ecom-product-modal__backdrop"
-      data-modal-close
-    ></div>
+  {%- comment -%} Quick-view modal (single instance, populated by JS) {%- endcomment -%}
+  <div class="ecom-product-modal" data-product-modal aria-hidden="true">
+    <div class="ecom-product-modal__backdrop" data-modal-close></div>
 
-    <div
-      class="ecom-product-modal__dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="EcomProductModalTitle-{{ section.id }}"
-    >
-      <button
-        type="button"
-        class="ecom-product-modal__close"
-        data-modal-close
-        aria-label="Close product details"
-      >
-        <span aria-hidden="true">&times;</span>
-      </button>
+    <div class="ecom-product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ecom-modal-title">
+      <button type="button" class="ecom-product-modal__close" data-modal-close aria-label="Close">×</button>
 
-      <div class="ecom-product-modal__content">
-
+      <div class="ecom-product-modal__top">
         <div class="ecom-product-modal__media">
-          <img
-            src=""
-            alt=""
-            class="ecom-product-modal__image"
-            data-modal-image
-            width="900"
-            height="900"
-          >
+          <img data-modal-image src="" alt="" width="120" height="120" class="ecom-product-modal__image">
         </div>
-
-        <div class="ecom-product-modal__details">
-
-          <h2
-            class="ecom-product-modal__title"
-            id="EcomProductModalTitle-{{ section.id }}"
-            data-modal-title
-          ></h2>
-
-          <div
-            class="ecom-product-modal__price"
-            data-modal-price
-          ></div>
-
-          <div
-            class="ecom-product-modal__description"
-            data-modal-description
-          ></div>
-
-          <form
-            class="ecom-product-modal__form"
-            data-product-form
-          >
-            <div
-              class="ecom-product-modal__options"
-              data-modal-options
-            ></div>
-
-            <div
-              class="ecom-product-modal__status"
-              data-modal-status
-              role="status"
-              aria-live="polite"
-            ></div>
-
-            <button
-              type="submit"
-              class="ecom-product-modal__add"
-              data-add-to-cart
-            >
-              <span data-add-to-cart-label>
-                {{ section.settings.add_to_cart_label }}
-              </span>
-
-              <span
-                class="ecom-product-modal__add-arrow"
-                aria-hidden="true"
-              >
-                →
-              </span>
-            </button>
-          </form>
-
+        <div class="ecom-product-modal__summary">
+          <h2 id="ecom-modal-title" data-modal-title class="ecom-product-modal__title"></h2>
+          <div data-modal-price class="ecom-product-modal__price"></div>
+          <div data-modal-description class="ecom-product-modal__description"></div>
         </div>
       </div>
+
+      <form class="ecom-product-modal__form" data-product-form>
+        <div data-modal-options class="ecom-product-modal__options"></div>
+        <div data-modal-status class="ecom-product-modal__status" role="status"></div>
+        <button type="submit" class="ecom-product-modal__add" data-add-to-cart>
+          <span data-add-to-cart-label>{{ section.settings.add_to_cart_label }}</span>
+          <span class="ecom-product-modal__add-arrow" aria-hidden="true"></span>
+        </button>
+      </form>
     </div>
   </div>
 
-  {%- comment -%}
-    The companion product is selected through the Shopify customizer rather
-    than relying on a hard-coded product handle. This keeps the cart rule
-    configurable while allowing the store to use Soft Winter Jacket as
-    required by the test.
-  {%- endcomment -%}
-  {% if section.settings.companion_product != blank %}
-    <script type="application/json" data-companion-product>
-      {{ section.settings.companion_product | json }}
-    </script>
-  {% endif %}
+  {%- comment -%} Bonus product auto-added when Black + Medium is selected {%- endcomment -%}
+  <script type="application/json" data-soft-winter-jacket>
+    {%- if section.settings.soft_winter_jacket != blank -%}
+      {
+        "variants": [
+          {%- for variant in section.settings.soft_winter_jacket.variants -%}
+            { "id": {{ variant.id }} }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    {%- else -%}
+      null
+    {%- endif -%}
+  </script>
 </section>
 
 <script src="{{ 'ecom-product-grid.js' | asset_url }}" defer></script>
@@ -196,35 +129,19 @@
   "tag": "section",
   "class": "section-ecom-product-grid",
   "settings": [
-    {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "Shop our collection"
-    },
-    {
-      "type": "text",
-      "id": "add_to_cart_label",
-      "label": "Add to cart button",
-      "default": "ADD TO CART"
-    },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Tisso vison in the wild" },
+    { "type": "text", "id": "add_to_cart_label", "label": "Add to cart label", "default": "ADD TO CART" },
     {
       "type": "product",
-      "id": "companion_product",
-      "label": "Automatic companion product"
+      "id": "soft_winter_jacket",
+      "label": "Soft Winter Jacket (auto-added when Black + Medium is selected)"
     }
   ],
   "blocks": [
     {
       "type": "product",
       "name": "Product",
-      "settings": [
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Product"
-        }
-      ]
+      "settings": [{ "type": "product", "id": "product", "label": "Product" }]
     }
   ],
   "max_blocks": 6,
@@ -232,24 +149,12 @@
     {
       "name": "Ecom Product Grid",
       "blocks": [
-        {
-          "type": "product"
-        },
-        {
-          "type": "product"
-        },
-        {
-          "type": "product"
-        },
-        {
-          "type": "product"
-        },
-        {
-          "type": "product"
-        },
-        {
-          "type": "product"
-        }
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
       ]
     }
   ]

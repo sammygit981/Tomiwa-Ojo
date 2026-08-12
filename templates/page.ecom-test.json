@@ -1,80 +1,48 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "gift_banner": {
-      "type": "gift-banner",
+    "tisso_banner": {
+      "type": "tisso-banner",
       "settings": {
-        "heading": "The Gift Guide",
-        "description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>",
-        "button_text": "SHOP NOW",
-        "button_link": ""
+        "header_logo_text": "TISSO VISON",
+        "header_message_text": "Find the ideal gift for your loved ones.",
+        "header_gift_button_text": "CHOOSE GIFT",
+        "header_gift_link": "",
+        "banner_title": "The Gift Guide",
+        "banner_description": "Discover Joy: Your Ultimate Holiday Gift Destination.\nExplore our curated selection and find the perfect gifts to delight your loved ones this holiday season.",
+        "banner_description_mobile": "Discover Joy: Your Ultimate Holiday Gift Destination.",
+        "banner_cta_label": "SHOP NOW",
+        "banner_cta_link": "",
+        "banner_strip_text": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL",
+        "banner_strip_text_mobile": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
       }
     },
-    "ecom_product_grid": {
+        "ecom_product_grid": {
       "type": "ecom-product-grid",
       "blocks": {
-        "product_UPnfik": {
-          "type": "product",
-          "settings": {
-            "product": "classic-varsity-top"
-          }
-        },
-        "product_CkCf9H": {
-          "type": "product",
-          "settings": {
-            "product": "classic-leather-jacket"
-          }
-        },
-        "product_NVtH6A": {
-          "type": "product",
-          "settings": {
-            "product": "chequered-red-shirt"
-          }
-        },
-        "product_DzN3m9": {
-          "type": "product",
-          "settings": {
-            "product": "black-leather-bag"
-          }
-        },
-        "product_ANLiVw": {
-          "type": "product",
-          "settings": {
-            "product": "blue-silk-tuxedo"
-          }
-        },
-        "product_NEqQmK": {
-          "type": "product",
-          "settings": {
-            "product": "black-leather-bag"
-          }
-        }
+        "product_1": { "type": "product", "settings": { "product": "black-leather-bag" } },
+        "product_2": { "type": "product", "settings": { "product": "blue-silk-tuxedo" } },
+        "product_3": { "type": "product", "settings": { "product": "chequered-red-shirt" } },
+        "product_4": { "type": "product", "settings": { "product": "classic-leather-jacket" } },
+        "product_5": { "type": "product", "settings": { "product": "classic-varsity-top" } },
+        "product_6": { "type": "product", "settings": { "product": "black-leather-bag" } }
       },
       "block_order": [
-        "product_UPnfik",
-        "product_CkCf9H",
-        "product_NVtH6A",
-        "product_DzN3m9",
-        "product_ANLiVw",
-        "product_NEqQmK"
+        "product_1",
+        "product_2",
+        "product_3",
+        "product_4",
+        "product_5",
+        "product_6"
       ],
       "settings": {
-        "heading": "Shop our collection",
+        "heading": "Tisso vison in the wild",
         "add_to_cart_label": "ADD TO CART",
-        "companion_product": "dark-winter-jacket"
+        "soft_winter_jacket": "soft-winter-jacket"
       }
     }
   },
   "order": [
-    "gift_banner",
+    "tisso_banner",
     "ecom_product_grid"
   ]
 }

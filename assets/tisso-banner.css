@@ -1,0 +1,572 @@
+/* Scoped: Tisso candidate test page */
+body:has([data-tisso-banner]) #header-group,
+body:has([data-tisso-banner]) footer,
+body:has([data-tisso-banner]) .page-wrapper > p {
+  display: none !important;
+}
+
+.tisso-banner {
+  background: #ffffff;
+  padding-bottom: 0;   
+}
+
+.tisso-header {
+  position: relative;
+  z-index: 200;
+  width: 100%;
+}
+
+/* Desktop header */
+.tisso-header__desktop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 10px 50px;
+  background: #f5f5f5;
+}
+
+.tisso-header__logo {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  width: 151.44px;
+  height: 19px;
+  text-decoration: none;
+}
+
+.tisso-header__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tisso-header__message {
+  margin: 0;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 13.42px;
+  color: #000000;
+  text-align: center;
+}
+
+/* Tisso Header Gift Button */
+.tisso-header__gift-button {
+  position: relative;
+  flex-shrink: 0;
+  width: 207px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Evenly space text and arrow */
+  padding: 0 20px 0 24px;         /* Match exact Figma horizontal padding */
+  background: #fff544;
+  color: #000000;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20.48px;
+  text-transform: uppercase;
+  text-decoration: none;
+  overflow: hidden;
+  transition: color 350ms ease;
+  box-sizing: border-box;
+}
+
+/* Slide-in black background overlay */
+.tisso-header__gift-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  transform: translateX(-100%);
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 0;
+}
+
+/* Keep text and arrow above the sliding black background */
+.tisso-header__gift-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tisso-header__gift-text {
+  margin-right: 0; /* Clear hardcoded margin so flex layout handles spacing */
+}
+
+/* Arrow container with smooth horizontal translation */
+.tisso-header__gift-arrow {
+  position: relative;
+  right: auto;
+  top: auto;
+  transform: none;
+  width: 24px;
+  height: 1.5px;
+  background-color: currentColor;
+  display: inline-block;
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Arrowhead tip */
+.tisso-header__gift-arrow span {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  box-sizing: border-box;
+}
+
+/* Hover States */
+.tisso-header__gift-button:hover::before {
+  transform: translateX(0);
+}
+
+.tisso-header__gift-button:hover {
+  color: #ffffff;
+}
+
+/* Smooth arrow shift on hover */
+.tisso-header__gift-button:hover .tisso-header__gift-arrow {
+  transform: translateX(4px);
+}
+
+.tisso-header__mobile {
+  display: none;
+}
+
+.tisso-menu {
+  display: none;
+}
+
+/* Gift guide hero */
+.tisso-gift-banner__frame {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  height: 780px;
+  margin: 0 auto;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.tisso-gift-banner__illustrations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+   Gift-guide artwork — exact Figma placement inside the 1440x780 frame
+   Top    : x 0    y 0    w 1440  h 390   (Figma y 64 - 64px header)
+   Bottom : x 550  y 378  w 890   h 402   (378 + 402 = 780 -> flush bottom)
+   Expressed in % so the art scales down with the frame and the two
+   halves can never overlap each other or the copy column.
+   --------------------------------------------------------------- */
+.tisso-gift-banner__illus {
+  position: absolute;
+  display: block;
+  max-width: none;
+  object-fit: contain;
+}
+
+.tisso-gift-banner__illus-top {
+  top: 0;                    /* 64 - 64 */
+  left: 0;                   /* 0 / 1440 */
+  width: 100%;               /* 1440 / 1440 */
+  height: 50%;               /*  390 /  780 */
+  object-position: left top;
+}
+
+.tisso-gift-banner__illus-bottom {
+  top: auto;
+  bottom: 0;                 /* 378 + 402 = 780 */
+  left: 38.1944%;            /*  550 / 1440 */
+  width: 61.8056%;           /*  890 / 1440 */
+  height: 51.5385%;          /*  402 /  780 */
+  object-position: right bottom;
+}
+
+/* Copy column: 67 + 483 = 550px = the exact left edge of the bottom
+   artwork, so title / description / CTA are never blocked by it. */
+.tisso-gift-banner__content {
+  position: absolute;
+  left: 67px;
+  top: 425px;
+  bottom: auto;
+  width: 483px;
+  z-index: 2;
+}
+
+.tisso-gift-banner__title {
+  margin: 0 0 30px;
+  font-family: "Jost", sans-serif;
+  font-weight: 500;
+  font-size: 70px;
+  line-height: 1em;
+  color: #000000;
+}
+
+.tisso-gift-banner__description {
+  margin: 0 0 30px;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.4em;
+  color: #000000;
+  white-space: pre-line;
+}
+
+.tisso-gift-banner__description--mobile {
+  display: none;
+}
+
+.tisso-gift-banner__cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 220px;
+  height: 50px;
+  padding: 0 20px;
+  background: #000000;
+  color: #ffffff;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20.48px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 300ms ease, color 300ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+/* CTA: */
+.tisso-gift-banner__cta {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.tisso-gift-banner__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff544;
+  transform: translateX(-100%);
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 0;
+}
+
+.tisso-gift-banner__cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tisso-gift-banner__cta:hover::before { transform: translateX(0); }
+.tisso-gift-banner__cta:hover { color: #000000; }
+
+/* Arrow */
+.tisso-gift-banner__cta-arrow {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.tisso-gift-banner__cta-arrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  box-sizing: border-box;
+}
+
+.tisso-gift-banner__cta:hover .tisso-gift-banner__cta-arrow { transform: translateX(4px); }
+
+/* Mobile drawer button keeps the simple invert */
+.tisso-menu__gift-button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.tisso-gift-banner__strip {
+  margin: 0;
+  border: 0;           /* no rule/outline on any side of the strip */
+  padding: 10px 50px;
+  background: #f5f5f5;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 13.42px;
+  color: #000000;
+  text-align: center;
+}
+
+.tisso-gift-banner__strip--mobile {
+  display: none;
+}
+
+/* Mobile */
+@media screen and (max-width: 749px) {
+  .tisso-banner {
+    padding-bottom: 40px;
+  }
+
+  .tisso-header__desktop {
+    display: none;
+  }
+
+  .tisso-header__mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 50px;
+    padding: 23px 16px;
+    background: #f7f7f7;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .tisso-header__menu-button {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .tisso-header__menu-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 18px;
+  }
+
+  .tisso-header__menu-icon span {
+    display: block;
+    height: 1.5px;
+    background: #000000;
+  }
+
+  .tisso-header__menu-button.is-open .tisso-header__menu-icon span:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .tisso-header__menu-button.is-open .tisso-header__menu-icon span:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  .tisso-header__menu-icon span {
+    transition: transform 200ms ease;
+  }
+
+  .tisso-header__mobile-logo {
+  display: inline-flex;
+  align-items: center;
+  width: 151.44px;
+  height: 19px;
+  text-decoration: none;
+}
+
+.tisso-header__mobile-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+  .tisso-menu.is-open {
+    display: block;
+    background: #f7f7f7;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .tisso-menu__bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 50px;
+    padding: 0 16px;
+  }
+
+  .tisso-menu__close {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    color: #000000;
+    cursor: pointer;
+  }
+
+  .tisso-menu__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 32px;
+    text-align: center;
+  }
+
+  .tisso-menu__content p {
+    margin: 0 0 20px;
+    font-family: "Jost", sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.3em;
+    color: #000000;
+  }
+
+  .tisso-menu__gift-button {
+    position: relative;
+    width: 207px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff544;
+    color: #000000;
+    font-family: "Jost", sans-serif;
+    font-size: 16px;
+    line-height: 20.48px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+
+  .tisso-menu__gift-arrow {
+    position: absolute;
+    right: 20px;
+    width: 24px;
+    border-top: 1.5px solid currentColor;
+  }
+
+  .tisso-menu__gift-arrow span {
+    position: absolute;
+    right: 0;
+    top: -4px;
+    width: 8px;
+    height: 8px;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+    .tisso-banner { padding-bottom: 0; }
+
+  .tisso-gift-banner__frame {
+    width: 100%;
+    max-width: none;             /* was 375px → left white gaps on wider phones */
+    height: 420px;
+    margin: 0;
+    overflow: hidden;            /* art bleeds off both edges */
+  }
+
+  /* Copy sits at the top, art starts underneath it */
+  .tisso-gift-banner__content {
+    left: 0;
+    right: 0;
+    top: 40px;
+    bottom: auto;
+    width: 100%;
+    padding: 0 24px;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .tisso-gift-banner__title {
+    margin-bottom: 14px;
+    font-size: 30px;
+    line-height: 1.1em;
+  }
+
+  .tisso-gift-banner__description--desktop { display: none; }
+
+  .tisso-gift-banner__description--mobile {
+    display: block;
+    max-width: 300px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.35em;
+    text-align: center;
+    white-space: normal;
+  }
+
+  /* ONE illustration, sized by HEIGHT so it bleeds off both edges like the mockup */
+  .tisso-gift-banner__illus-top {
+    display: block;
+    left: 50%;
+    right: auto;
+    top: 180px;                  /* 180 + 240 = 420 = frame height */
+    bottom: auto;
+    transform: translateX(-50%);
+    width: auto;
+    height: 240px;
+    max-height: none;
+    object-fit: contain;
+    object-position: center top;
+  }
+
+  .tisso-gift-banner__illus-bottom { display: none !important; }
+
+  /* CTA centred ON the artwork, near the bottom of the frame */
+  .tisso-gift-banner__cta {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    bottom: 22px;
+    transform: translateX(-50%);
+    width: 193px;
+    height: 45px;
+    margin: 0;
+    padding: 0 20px;
+    justify-content: space-between;
+    z-index: 2;
+  }
+
+  .tisso-gift-banner__strip--desktop { display: none; }
+
+  .tisso-gift-banner__strip--mobile {
+    display: block;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .tisso-gift-banner__strip--desktop {
+    display: none;
+  }
+
+  .tisso-gift-banner__strip--mobile {
+    display: block;
+    padding: 10px 50px;
+    font-size: 14px;
+    line-height: 13.42px;
+  }
+}

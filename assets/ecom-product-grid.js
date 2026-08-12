@@ -1,394 +1,319 @@
-/*
- * Ecom Product Grid
- *
- * This module handles product-modal interaction, dynamic variant selection,
- * Shopify cart requests, and the required companion-product cart rule using
- * vanilla JavaScript only.
- */
-
 (() => {
-  const initProductGrid = (section) => {
-    const modal = section.querySelector("[data-product-modal]");
-    const triggers = section.querySelectorAll("[data-product-trigger]");
-    const productDataElements = section.querySelectorAll("[data-product-data]");
-    const companionElement = section.querySelector("[data-companion-product]");
+  const COLOR_MAP = {
+    Red: '#8B2332',
+    Grey: '#9E9E9E',
+    Gray: '#9E9E9E',
+    Blue: '#1E3A5F',
+    Black: '#000000',
+    White: '#FFFFFF',
+    Green: '#2E5E4E',
+    Orange: '#E86C3A',
+    Yellow: '#E8C547',
+    Navy: '#1B2A49',
+    Pink: '#E8A0B0',
+    Brown: '#6B4423',
+    Purple: '#5C3D6E',
+  };
 
-    if (!modal || !triggers.length) {
-      return;
+  const getColor = (name) => COLOR_MAP[name] || '#CCCCCC';
+
+  const formatMoney = (cents) => {
+    if (window.Shopify?.formatMoney) {
+      return window.Shopify.formatMoney(cents);
+    }
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'EUR' }).format((cents || 0) / 100);
+  };
+
+  const initProductGrid = (root) => {
+    if (root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
+
+    const modal = root.querySelector('[data-product-modal]');
+    const triggers = root.querySelectorAll('[data-product-trigger]');
+    const jacketData = root.querySelector('[data-soft-winter-jacket]');
+    const form = root.querySelector('[data-product-form]');
+
+    let jacketProduct = null;
+    if (jacketData?.textContent.trim()) {
+      try {
+        jacketProduct = JSON.parse(jacketData.textContent);
+      } catch (e) {
+        jacketProduct = null;
+      }
     }
 
-    const modalImage = modal.querySelector("[data-modal-image]");
-    const modalTitle = modal.querySelector("[data-modal-title]");
-    const modalPrice = modal.querySelector("[data-modal-price]");
-    const modalDescription = modal.querySelector("[data-modal-description]");
-    const modalOptions = modal.querySelector("[data-modal-options]");
-    const modalStatus = modal.querySelector("[data-modal-status]");
-    const productForm = modal.querySelector("[data-product-form]");
-    const addButton = modal.querySelector("[data-add-to-cart]");
-    const addButtonLabel = modal.querySelector("[data-add-to-cart-label]");
-
-    const productMap = new Map();
-
-    productDataElements.forEach((element) => {
-      try {
-        const product = JSON.parse(element.textContent);
-
-        if (product && product.id) {
-          productMap.set(String(product.id), product);
-        }
-      } catch (error) {
-        console.error("Unable to parse product data.", error);
-      }
-    });
-
     let activeProduct = null;
+    let selectedSize = '';
 
-    const companionProduct = companionElement
-      ? JSON.parse(companionElement.textContent)
-      : null;
-
-    const formatMoney = (amount) => {
-      const numericAmount = Number(amount);
-
-      if (Number.isNaN(numericAmount)) {
-        return "";
-      }
-
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "USD"
-      }).format(numericAmount / 100);
+    const lockScroll = () => {
+      document.body.style.overflow = 'hidden';
     };
 
-    const setStatus = (message = "", type = "") => {
-      modalStatus.textContent = message;
-      modalStatus.className = "ecom-product-modal__status";
-
-      if (type) {
-        modalStatus.classList.add(`is-${type}`);
-      }
+    const unlockScroll = () => {
+      document.body.style.overflow = '';
     };
 
-    const getSelectedOptions = () => {
-      return Array.from(
-        modalOptions.querySelectorAll(
-          'input[type="radio"]:checked'
-        )
-      ).map((input) => ({
-        name: input.dataset.optionName,
-        value: input.value
-      }));
-    };
-
-    const findMatchingVariant = () => {
-      if (!activeProduct || !activeProduct.variants) {
-        return null;
-      }
-
-      const selectedOptions = getSelectedOptions();
-
-      return (
-        activeProduct.variants.find((variant) => {
-          return selectedOptions.every((selectedOption) => {
-            const optionIndex = activeProduct.options.findIndex(
-              (option) => option === selectedOption.name
-            );
-
-            return (
-              optionIndex !== -1 &&
-              variant.options[optionIndex] === selectedOption.value
-            );
-          });
-        }) || null
-      );
-    };
-
-    const renderOptions = () => {
-      modalOptions.innerHTML = "";
-
-      if (
-        !activeProduct.options ||
-        !activeProduct.options.length
-      ) {
-        return;
-      }
-
-      activeProduct.options.forEach((optionName, optionIndex) => {
-        const values = [
-          ...new Set(
-            activeProduct.variants
-              .map((variant) => variant.options[optionIndex])
-              .filter(Boolean)
-          )
-        ];
-
-        if (!values.length) {
-          return;
-        }
-
-        const fieldset = document.createElement("fieldset");
-        fieldset.className = "ecom-product-modal__option";
-
-        const legend = document.createElement("legend");
-        legend.className = "ecom-product-modal__option-label";
-        legend.textContent = optionName;
-
-        const valuesContainer = document.createElement("div");
-        valuesContainer.className =
-          "ecom-product-modal__option-values";
-
-        values.forEach((value, valueIndex) => {
-          const wrapper = document.createElement("div");
-          wrapper.className =
-            "ecom-product-modal__option-value";
-
-          const inputId =
-            `${section.id}-${activeProduct.id}-${optionIndex}-${valueIndex}`;
-
-          const input = document.createElement("input");
-
-          input.type = "radio";
-          input.id = inputId;
-          input.name =
-            `${section.id}-option-${optionIndex}`;
-          input.value = value;
-          input.dataset.optionName = optionName;
-          input.checked = valueIndex === 0;
-
-          const label = document.createElement("label");
-          label.htmlFor = inputId;
-          label.textContent = value;
-
-          wrapper.append(input, label);
-          valuesContainer.appendChild(wrapper);
-        });
-
-        fieldset.append(legend, valuesContainer);
-        modalOptions.appendChild(fieldset);
+    const closeModal = () => {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      unlockScroll();
+      root.querySelectorAll('.ecom-product-modal__size-select.is-open').forEach((el) => {
+        el.classList.remove('is-open');
+        el.querySelector('[data-size-list]')?.setAttribute('hidden', '');
       });
     };
 
-    const updateVariantState = () => {
-      const variant = findMatchingVariant();
+    const getSelectedOptions = () => {
+      const selected = {};
+      modal.querySelectorAll('[data-option-name]').forEach((group) => {
+        const name = group.dataset.optionName;
+        if (group.dataset.optionType === 'color') {
+          const checked = group.querySelector('input[type="radio"]:checked');
+          if (checked) selected[name] = checked.value;
+        } else if (group.dataset.optionType === 'size') {
+          if (selectedSize) selected[name] = selectedSize;
+        } else if (group.dataset.optionType === 'generic') {
+          const checked = group.querySelector('input[type="radio"]:checked');
+          if (checked) selected[name] = checked.value;
+        }
+      });
+      return selected;
+    };
 
-      if (!variant) {
-        addButton.disabled = true;
-        setStatus("Please select an available variant.", "error");
-        return null;
-      }
+    const findVariant = (product, selections) => {
+      if (!product?.variants?.length) return null;
+      return (
+        product.variants.find((variant) =>
+          variant.options.every((opt, i) => {
+            const optionName = product.options[i]?.name;
+            return selections[optionName] === opt;
+          })
+        ) || product.variants.find((v) => v.available) || product.variants[0]
+      );
+    };
 
-      addButton.disabled = !variant.available;
+    const buildColorSelector = (option, index) => {
+      const group = document.createElement('div');
+      group.className = 'ecom-product-modal__option-group';
+      group.dataset.optionName = option.name;
+      group.dataset.optionType = 'color';
 
-      if (!variant.available) {
-        setStatus("This variant is currently unavailable.", "error");
-      } else {
-        setStatus("");
-      }
+      const label = document.createElement('div');
+      label.className = 'ecom-product-modal__option-label';
+      label.textContent = option.name;
+      group.appendChild(label);
 
-      return variant;
+      const row = document.createElement('div');
+      row.className = 'ecom-product-modal__color-row';
+
+      option.values.slice(0, 2).forEach((value, idx) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'ecom-product-modal__color-option';
+        const id = `color-opt-${index}-${idx}`;
+        wrap.innerHTML = `
+          <input type="radio" name="option-color-${index}" id="${id}" value="${value}" ${idx === 0 ? 'checked' : ''}>
+          <label class="ecom-product-modal__color-label" for="${id}">
+            <span class="ecom-product-modal__color-swatch" style="background:${getColor(value)}"></span>
+            <span>${value}</span>
+          </label>`;
+        row.appendChild(wrap);
+      });
+
+      group.appendChild(row);
+      return group;
+    };
+
+    const buildSizeDropdown = (option, index) => {
+      const group = document.createElement('div');
+      group.className = 'ecom-product-modal__option-group';
+      group.dataset.optionName = option.name;
+      group.dataset.optionType = 'size';
+
+      const label = document.createElement('div');
+      label.className = 'ecom-product-modal__option-label';
+      label.textContent = option.name;
+      group.appendChild(label);
+
+      const select = document.createElement('div');
+      select.className = 'ecom-product-modal__size-select';
+      select.innerHTML = `
+        <button type="button" class="ecom-product-modal__size-trigger" data-size-trigger>
+          <span data-size-label>Choose your size</span>
+          <span class="ecom-product-modal__size-chevron" aria-hidden="true"></span>
+        </button>
+        <ul class="ecom-product-modal__size-list" data-size-list hidden></ul>`;
+
+      const list = select.querySelector('[data-size-list]');
+      option.values.forEach((value, idx) => {
+        const li = document.createElement('li');
+        li.className = 'ecom-product-modal__size-option';
+        li.textContent = value;
+        li.dataset.value = value;
+        if (idx === 0) {
+          li.classList.add('is-selected');
+          selectedSize = value;
+          select.querySelector('[data-size-label]').textContent = value;
+        }
+        list.appendChild(li);
+      });
+
+      const trigger = select.querySelector('[data-size-trigger]');
+      trigger.addEventListener('click', () => {
+        const isOpen = select.classList.toggle('is-open');
+        list.toggleAttribute('hidden', !isOpen);
+      });
+
+      list.querySelectorAll('.ecom-product-modal__size-option').forEach((item) => {
+        item.addEventListener('click', () => {
+          selectedSize = item.dataset.value;
+          select.querySelector('[data-size-label]').textContent = selectedSize;
+          list.querySelectorAll('.ecom-product-modal__size-option').forEach((el) => el.classList.remove('is-selected'));
+          item.classList.add('is-selected');
+          select.classList.remove('is-open');
+          list.setAttribute('hidden', '');
+        });
+      });
+
+      group.appendChild(select);
+      return group;
+    };
+
+    const buildOptions = (product) => {
+      const container = modal.querySelector('[data-modal-options]');
+      container.innerHTML = '';
+      selectedSize = '';
+
+      (product.options || []).forEach((option, i) => {
+        if (!option.values || option.values.length < 2) return;
+
+        const nameLower = option.name.toLowerCase();
+        if (nameLower.includes('color') || nameLower.includes('colour')) {
+          container.appendChild(buildColorSelector(option, i));
+        } else if (nameLower.includes('size')) {
+          container.appendChild(buildSizeDropdown(option, i));
+        } else {
+          const group = document.createElement('div');
+          group.className = 'ecom-product-modal__option-group';
+          group.dataset.optionName = option.name;
+          group.dataset.optionType = 'generic';
+          group.innerHTML = `<div class="ecom-product-modal__option-label">${option.name}</div>`;
+          const row = document.createElement('div');
+          row.className = 'ecom-product-modal__color-row';
+          option.values.slice(0, 2).forEach((value, idx) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'ecom-product-modal__color-option';
+            const id = `generic-opt-${i}-${idx}`;
+            wrap.innerHTML = `
+              <input type="radio" name="option-generic-${i}" id="${id}" value="${value}" ${idx === 0 ? 'checked' : ''}>
+              <label class="ecom-product-modal__color-label" for="${id}"><span>${value}</span></label>`;
+            row.appendChild(wrap);
+          });
+          group.appendChild(row);
+          container.appendChild(group);
+        }
+      });
     };
 
     const openModal = (product) => {
       activeProduct = product;
+      modal.querySelector('[data-modal-title]').textContent = product.title;
+      modal.querySelector('[data-modal-price]').textContent = formatMoney(product.price);
+      modal.querySelector('[data-modal-description]').innerHTML = product.description || '';
+      modal.querySelector('[data-modal-image]').src = product.featured_image || '';
+      modal.querySelector('[data-modal-image]').alt = product.title;
+      modal.querySelector('[data-modal-status]').textContent = '';
 
-      modalTitle.textContent = product.title;
-      modalPrice.textContent = formatMoney(product.price);
+      buildOptions(product);
 
-      modalDescription.innerHTML = product.description || "";
-
-      const imageUrl =
-        product.featured_image ||
-        product.images?.[0] ||
-        "";
-
-      modalImage.src = imageUrl;
-      modalImage.alt = product.title;
-
-      renderOptions();
-      updateVariantState();
-
-      modal.classList.add("is-open");
-      modal.setAttribute("aria-hidden", "false");
-      document.body.classList.add("ecom-product-modal-open");
-
-      const firstFocusable =
-        modal.querySelector(".ecom-product-modal__close");
-
-      firstFocusable?.focus();
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      lockScroll();
     };
 
-    const closeModal = () => {
-      modal.classList.remove("is-open");
-      modal.setAttribute("aria-hidden", "true");
-      document.body.classList.remove("ecom-product-modal-open");
-
-      activeProduct = null;
-      setStatus("");
-    };
-
-    const hasBlackAndMediumOptions = (variant) => {
-      if (!activeProduct || !variant) {
-        return false;
-      }
-
-      const values = variant.options.map((option) =>
-        String(option).trim().toLowerCase()
-      );
-
-      return (
-        values.includes("black") &&
-        values.includes("medium")
-      );
-    };
-
-    const addItemToCart = async (variantId) => {
-      const response = await fetch(
-        `${window.Shopify.routes.root}cart/add.js`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          body: JSON.stringify({
-            items: [
-              {
-                id: variantId,
-                quantity: 1
-              }
-            ]
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Unable to add the product to the cart.");
-      }
-
-      return response.json();
-    };
-
-    const addCompanionProduct = async () => {
-      if (!companionProduct?.variants?.length) {
-        return;
-      }
-
-      const availableVariant =
-        companionProduct.variants.find(
-          (variant) => variant.available
-        );
-
-      if (!availableVariant) {
-        return;
-      }
-
-      await addItemToCart(availableVariant.id);
-    };
-
-    const handleAddToCart = async (event) => {
-      event.preventDefault();
-
-      const variant = updateVariantState();
-
-      if (!variant || !variant.available) {
-        return;
-      }
-
-      addButton.disabled = true;
-      addButtonLabel.textContent = "ADDING...";
-
-      setStatus("");
-
-      try {
-        await addItemToCart(variant.id);
-
-        if (hasBlackAndMediumOptions(variant)) {
-          await addCompanionProduct();
-        }
-
-        addButtonLabel.textContent = "ADDED";
-
-        setStatus("Added to cart.", "success");
-
-        /*
-         * Dispatching the standard cart update event allows other theme
-         * components to react to the cart change without coupling this
-         * section to Horizon's internal cart implementation.
-         */
-        document.dispatchEvent(
-          new CustomEvent("ecom:cart-updated")
-        );
-
-        window.dispatchEvent(
-          new CustomEvent("cart:updated")
-        );
-
-        setTimeout(() => {
-          closeModal();
-          addButtonLabel.textContent = "ADD TO CART";
-          addButton.disabled = false;
-        }, 700);
-      } catch (error) {
-        console.error(error);
-
-        addButtonLabel.textContent = "ADD TO CART";
-        addButton.disabled = false;
-
-        setStatus(
-          "We couldn't add this product. Please try again.",
-          "error"
-        );
-      }
-    };
-
-    triggers.forEach((trigger) => {
-      trigger.addEventListener("click", () => {
-        const card = trigger.closest("[data-product-card]");
-
-        if (!card) {
-          return;
-        }
-
-        const productId = card.dataset.productId;
-        const product = productMap.get(String(productId));
-
-        if (product) {
-          openModal(product);
+    triggers.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('[data-product-card]');
+        const dataEl = card?.querySelector('[data-product-data]');
+        if (!dataEl) return;
+        try {
+          openModal(JSON.parse(dataEl.textContent));
+        } catch (e) {
+          console.error('Product data parse error', e);
         }
       });
     });
 
-    modal.addEventListener("click", (event) => {
-      if (event.target.closest("[data-modal-close]")) {
-        closeModal();
+    modal.querySelectorAll('[data-modal-close]').forEach((el) => {
+      el.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeProduct) return;
+
+      const selections = getSelectedOptions();
+      const variant = findVariant(activeProduct, selections);
+      if (!variant) {
+        modal.querySelector('[data-modal-status]').textContent = 'Please select options';
+        return;
       }
-    });
 
-    modalOptions.addEventListener("change", () => {
-      updateVariantState();
-    });
+      if (!variant.available) {
+        modal.querySelector('[data-modal-status]').textContent = 'Variant unavailable';
+        return;
+      }
 
-    productForm.addEventListener("submit", handleAddToCart);
+      const selectedValues = Object.values(selections);
+      const isBlackMedium =
+        selectedValues.some((v) => v.toLowerCase() === 'black') &&
+        selectedValues.some((v) => v.toLowerCase() === 'medium');
 
-    document.addEventListener("keydown", (event) => {
-      if (
-        event.key === "Escape" &&
-        modal.classList.contains("is-open")
-      ) {
-        closeModal();
+      const items = [{ id: variant.id, quantity: 1 }];
+
+      if (isBlackMedium && jacketProduct?.variants?.[0]?.id) {
+        items.push({ id: jacketProduct.variants[0].id, quantity: 1 });
+      }
+
+      const status = modal.querySelector('[data-modal-status]');
+      status.textContent = 'Adding...';
+
+      try {
+        const res = await fetch(`${window.Shopify?.routes?.root || '/'}cart/add.js`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items }),
+        });
+
+        if (res.ok) {
+          status.textContent = 'Added to cart!';
+        } else {
+          throw new Error('Cart add failed');
+        }
+      } catch {
+        status.textContent = 'Error adding to cart';
       }
     });
   };
 
-  const init = () => {
-    document
-      .querySelectorAll(".ecom-product-grid")
-      .forEach(initProductGrid);
+  const boot = () => {
+    document.querySelectorAll('[data-ecom-product-grid-section]').forEach(initProductGrid);
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    init();
+    boot();
   }
+
+  document.addEventListener('shopify:section:load', (e) => {
+    const section = e.target.querySelector('[data-ecom-product-grid-section]');
+    if (section) {
+      section.dataset.initialized = 'false';
+      initProductGrid(section);
+    }
+  });
 })();
