@@ -244,25 +244,7 @@ body:has([data-tisso-banner]) .page-wrapper > p {
   display: none;
 }
 
-.tisso-gift-banner__cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 220px;
-  height: 50px;
-  padding: 0 20px;
-  background: #000000;
-  color: #ffffff;
-  font-family: "Jost", sans-serif;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 20.48px;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: background-color 300ms ease, color 300ms ease, box-shadow 200ms ease, transform 200ms ease;
-}
-
-/* CTA: */
+/* CTA background slide animation */
 .tisso-gift-banner__cta {
   position: relative;
   overflow: hidden;
@@ -274,7 +256,8 @@ body:has([data-tisso-banner]) .page-wrapper > p {
   position: absolute;
   inset: 0;
   background: #fff544;
-  transform: translateX(-100%);
+  /* Starts off-screen to the right and exits to the left when unhovered */
+  transform: translateX(100%);
   transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
   z-index: 0;
 }
@@ -284,8 +267,18 @@ body:has([data-tisso-banner]) .page-wrapper > p {
   z-index: 1;
 }
 
-.tisso-gift-banner__cta:hover::before { transform: translateX(0); }
-.tisso-gift-banner__cta:hover { color: #000000; }
+/* Hover State: Slide yellow overlay in to cover the button */
+.tisso-gift-banner__cta:hover::before {
+  transform: translateX(0);
+}
+
+.tisso-gift-banner__cta:not(:hover)::before {
+  transform: translateX(-100%);
+}
+
+.tisso-gift-banner__cta:hover {
+  color: #000000;
+}
 
 /* Arrow */
 .tisso-gift-banner__cta-arrow {
