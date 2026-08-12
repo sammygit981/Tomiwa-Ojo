@@ -7,7 +7,9 @@
 <section class="tisso-banner" data-tisso-banner>
   <header class="tisso-header" data-tisso-header>
     <div class="tisso-header__desktop">
-      <a class="tisso-header__logo" href="{{ routes.root_url }}">{{ section.settings.header_logo_text }}</a>
+            <a class="tisso-header__logo" href="{{ routes.root_url }}">
+        {% render 'tisso-logo', alt_text: section.settings.header_logo_text %}
+      </a>
       <p class="tisso-header__message">{{ section.settings.header_message_text }}</p>
       <a class="tisso-header__gift-button" href="{{ section.settings.header_gift_link | default: '#' }}">
         <span class="tisso-header__gift-text">{{ section.settings.header_gift_button_text }}</span>
@@ -27,7 +29,9 @@
           <span></span><span></span>
         </span>
       </button>
-      <a class="tisso-header__mobile-logo" href="{{ routes.root_url }}">{{ section.settings.header_logo_text }}</a>
+            <a class="tisso-header__mobile-logo" href="{{ routes.root_url }}">
+        {% render 'tisso-logo', alt_text: section.settings.header_logo_text %}
+      </a>
     </div>
 
     <div class="tisso-menu" data-tisso-menu aria-hidden="true">
@@ -35,7 +39,9 @@
         <button type="button" class="tisso-menu__close" data-tisso-menu-close aria-label="Close menu">
           <span aria-hidden="true">×</span>
         </button>
-        <span class="tisso-menu__logo">{{ section.settings.header_logo_text }}</span>
+                <span class="tisso-menu__logo">
+          {% render 'tisso-logo', alt_text: section.settings.header_logo_text %}
+        </span>
       </div>
       <div class="tisso-menu__content">
         <p>{{ section.settings.header_message_text }}</p>

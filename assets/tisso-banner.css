@@ -37,11 +37,24 @@ body:has([data-tisso-banner]) .page-wrapper > p {
   text-decoration: none;
 }
 
-.tisso-header__logo img {
+/* --------------------------------------------------------------
+   Logo wordmark — one image rule shared by the desktop header,
+   the mobile bar and the open mobile drawer.
+   Box is 151.44 x 19 (Figma); the SVG scales inside it.
+   -------------------------------------------------------------- */
+.tisso-logo__img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Wordmark inside the open mobile drawer bar */
+.tisso-menu__logo {
+  display: inline-flex;
+  align-items: center;
+  width: 151.44px;
+  height: 19px;
 }
 
 .tisso-header__message {
@@ -387,13 +400,6 @@ body:has([data-tisso-banner]) .page-wrapper > p {
   width: 151.44px;
   height: 19px;
   text-decoration: none;
-}
-
-.tisso-header__mobile-logo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 
   .tisso-menu.is-open {
