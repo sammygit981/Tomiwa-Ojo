@@ -217,34 +217,43 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 /* Copy column ends at 67 + 483 = 550px, the exact left edge of the bottom
    artwork. 425 (title) + 70 + 50 + 84 (3 lines) + 50 = 679 = the Figma
    y-position of SHOP NOW, so one gap value drives the whole column. */
+/* Copy column — each element carries its own Figma coordinate as a % of the
+   1440 x 780 frame (Figma y minus the 64px header), so no amount of text
+   reflow can push SHOP NOW out of the frame.
+   x 67 -> 4.6528%  |  title y 489-64=425 -> 54.4872%
+   description y 545 -> 69.8718%  |  CTA y 743-64=679 -> 87.0513%
+   679 + 50 = 729, leaving 51px of white below the button. */
 .tisso-gift-banner__content {
   position: absolute;
-  left: 67px;
-  top: 425px;
-  bottom: auto;
-  width: 483px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 50px;
+  inset: 0;
   z-index: 2;
 }
 
+/* Figma title box: 459 x 70 */
 .tisso-gift-banner__title {
+  position: absolute;
+  left: 4.6528%;
+  top: 54.4872%;
+  width: 31.875%;                         /* 459 / 1440 */
   margin: 0;
   font-family: "Jost", sans-serif;
   font-weight: 500;
-  font-size: clamp(40px, 4.8611vw, 70px); /* 70 / 1440 */
-  line-height: 1em;
+  font-size: clamp(34px, 4.8611vw, 70px); /* 70 / 1440 */
+  line-height: 1;
   color: #000000;
 }
 
+/* 67 + 483 = 550 = the exact left edge of the bottom artwork */
 .tisso-gift-banner__description {
+  position: absolute;
+  left: 4.6528%;
+  top: 69.8718%;
+  width: 33.5417%;                        /* 483 / 1440 */
   margin: 0;
   font-family: "Jost", sans-serif;
   font-weight: 400;
-  font-size: clamp(15px, 1.3889vw, 20px); /* 20 / 1440 */
-  line-height: 1.4em;
+  font-size: clamp(13px, 1.3889vw, 20px); /* 20 / 1440 */
+  line-height: 1.4;
   color: #000000;
   white-space: pre-line;
 }
@@ -258,8 +267,12 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   align-items: center;
   justify-content: space-between;
 
-  width: 220px;
-  height: 50px;
+    position: absolute;
+  left: 4.6528%;
+  top: 87.0513%;
+  box-sizing: border-box;
+  width: clamp(150px, 15.2778vw, 220px);  /* 220 / 1440 */
+  height: clamp(36px, 3.4722vw, 50px);    /*  50 / 1440 */
   padding: 0 20px;
 
   background: #000000;
@@ -315,7 +328,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 
 .tisso-gift-banner__cta:hover {
   color: #000000;
-  flex-shrink: 0;
 }
 
 /* Arrow */
@@ -555,11 +567,12 @@ transform: translateX(4px);
   }
 
   /* 197 x 30 @ y 49 — Jost 500 / 30px / 100% */
-  .tisso-gift-banner__title {
+    .tisso-gift-banner__title {
     position: absolute;
     left: 0;
     right: 0;
     top: 11.639%;          /* 49 / 421 */
+    width: auto;           
     margin: 0;
     font-size: 30px;
     line-height: 1;
