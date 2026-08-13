@@ -330,6 +330,7 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 }
 
 .tisso-gift-banner__cta:hover::before {
+  opacity: 1;
   transform: translateX(0);
 }
 
