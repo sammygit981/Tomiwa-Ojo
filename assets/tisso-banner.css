@@ -106,11 +106,23 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   height: 100%;
   background: #000000;
   opacity: 0;
-  transform: translateX(-100%);
+
+  /* rest state: collapse toward the RIGHT edge (exit direction) */
+  transform: scaleX(0);
+  transform-origin: right center;
+
   transition:
     transform 350ms cubic-bezier(0.25, 1, 0.5, 1),
     opacity 300ms ease-out;
   z-index: 0;
+}
+
+.tisso-header__gift-button:hover::before,
+.tisso-header__gift-button:focus-visible::before {
+  opacity: 1;
+  /* hover: grow from the LEFT edge */
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
 /* Keep text and arrow above the sliding black background */
@@ -149,12 +161,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   border-right: 1.5px solid currentColor;
   transform: translateY(-50%) rotate(45deg);
   box-sizing: border-box;
-}
-
-/* Hover States */
-.tisso-header__gift-button:hover::before {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .tisso-header__gift-button:hover {
@@ -316,22 +322,27 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   inset: 0;
   background: #fff544;
   opacity: 0;
-  transform: translateX(-100%);
+
+  transform: scaleX(0);
+  transform-origin: right center;
+
   transition:
     transform 350ms cubic-bezier(0.25, 1, 0.5, 1),
     opacity 300ms ease-out;
   z-index: 0;
 }
 
+.tisso-gift-banner__cta:hover::before,
+.tisso-gift-banner__cta:focus-visible::before {
+  opacity: 1;
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
 /* keep text and arrow above animation */
 .tisso-gift-banner__cta > * {
   position: relative;
   z-index: 1;
-}
-
-.tisso-gift-banner__cta:hover::before {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .tisso-gift-banner__cta:hover {
@@ -658,7 +669,8 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 @media (prefers-reduced-motion: reduce) {
   .tisso-header__gift-button::before,
   .tisso-gift-banner__cta::before {
-    transform: translateX(0);
+    transform: scaleX(1);              /* no sweep — opacity carries the change */
+    transform-origin: left center;
     transition: opacity 200ms ease-out;
   }
 
@@ -668,7 +680,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   }
 
   .tisso-header__gift-button:hover .tisso-header__gift-arrow,
-  .tisso-gift-banner__cta:hover .tisso-gift-banner__cta-arrow {
-    transform: translateZ(0);
-  }
+  .tisso-header__gift-button:focus-visible .tisso-header__gift-arrow,
+  .tisso-gift-banner__cta:hover 
 }
