@@ -360,6 +360,17 @@
       const bonusVariant = getBonusVariant();
       if (bonusVariant) items.push({ id: bonusVariant.id, quantity: 1 });
 
+      /**
+       * Confirmation copy. When the bonus product rides along, the shopper is
+       * told what arrived and why, so an unexpected cart line never looks like
+       * a bug. Falls back to the plain message if the template is blank.
+       */
+      const successMessage = bonusVariant && copy.bonusAdded
+        ? copy.bonusAdded
+            .replace('{product}', state.product.title)
+            .replace('{bonus}', bonusProduct.title || '')
+        : copy.added;
+
       ui.submit.setAttribute('aria-busy', 'true');
       setStatus('');
 
@@ -377,7 +388,7 @@
           throw new Error(detail?.description || `Cart add failed (${response.status})`);
         }
 
-        setStatus(copy.added);
+        setStatus(successMessage);
         // Let the theme know the cart changed so any cart UI can refresh
         document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
       } catch (error) {

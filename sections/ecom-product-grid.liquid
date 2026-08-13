@@ -91,6 +91,7 @@
     data-added="{{ section.settings.added_text | escape }}"
     data-error="{{ section.settings.error_text | escape }}"
     data-bonus-options="{{ section.settings.bonus_trigger_options | escape }}"
+    data-bonus-added="{{ section.settings.bonus_added_text | escape }}"
     data-icon-down="{{ 'down-arrow.svg' | asset_url }}"
     data-icon-up="{{ 'up-arrow.svg' | asset_url }}"
   >
@@ -177,7 +178,14 @@
     { "type": "text", "id": "close_label", "label": "Close button label", "default": "Close" },
     { "type": "text", "id": "select_options_text", "label": "Message: options missing", "default": "Please select all options" },
     { "type": "text", "id": "unavailable_text", "label": "Message: variant unavailable", "default": "Sold out" },
-    { "type": "text", "id": "added_text", "label": "Message: added to cart", "default": "Added to cart" },
+      { "type": "text", "id": "added_text", "label": "Message: added to cart", "default": "Added to cart" },
+    {
+      "type": "text",
+      "id": "bonus_added_text",
+      "label": "Message: bonus product added",
+      "default": "Added to cart: {product} + {bonus}",
+      "info": "Shown instead of the normal message when the bonus product is included. {product} and {bonus} are replaced with the product names."
+    },
     { "type": "text", "id": "error_text", "label": "Message: error", "default": "Something went wrong, please try again" }
   ],
   "blocks": [
