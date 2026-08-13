@@ -167,6 +167,7 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 
 /* Gift guide hero */
 .tisso-gift-banner__frame {
+  container-type: inline-size;
   position: relative;
   width: 100%;
   max-width: 1440px;
@@ -230,17 +231,23 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 }
 
 /* Figma title box: 459 x 70 */
+/* The column runs to 67 + 483 = 550px, the left edge of the bottom artwork,
+   so a single line always has room and can never touch the illustration. */
 .tisso-gift-banner__title {
   position: absolute;
   left: 4.6528%;
   top: 54.4872%;
-  width: 31.875%;                         /* 459 / 1440 */
+  width: 33.5417%;   /* 483 / 1440 */
   margin: 0;
   font-family: "Jost", sans-serif;
   font-weight: 500;
-  font-size: clamp(34px, 4.8611vw, 70px); /* 70 / 1440 */
   line-height: 1;
   color: #000000;
+  white-space: nowrap;
+
+  /* vw first as the fallback, cqw wins where container queries are supported */
+  font-size: clamp(30px, 4.8611vw, 70px);
+  font-size: clamp(30px, 4.8611cqw, 70px);  /* 70 / 1440 */
 }
 
 /* 67 + 483 = 550 = the exact left edge of the bottom artwork */
@@ -252,7 +259,8 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   margin: 0;
   font-family: "Jost", sans-serif;
   font-weight: 400;
-  font-size: clamp(13px, 1.3889vw, 20px); /* 20 / 1440 */
+  font-size: clamp(13px, 1.3889vw, 20px);
+  font-size: clamp(13px, 1.3889cqw, 20px);  /* 20 / 1440 */
   line-height: 1.4;
   color: #000000;
   white-space: pre-line;
@@ -567,12 +575,12 @@ transform: translateX(4px);
   }
 
   /* 197 x 30 @ y 49 — Jost 500 / 30px / 100% */
-    .tisso-gift-banner__title {
+  .tisso-gift-banner__title {
     position: absolute;
     left: 0;
     right: 0;
     top: 11.639%;          /* 49 / 421 */
-    width: auto;           
+    width: auto;           /* clears the desktop 33.5417% */
     margin: 0;
     font-size: 30px;
     line-height: 1;

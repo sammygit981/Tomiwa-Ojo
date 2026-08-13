@@ -342,15 +342,18 @@
   border-right: 0;
 }
 
-/* The inset rule is the extra border: it outlines light swatches (White,
-   Cream...) that would otherwise vanish into the white cell, and simply
-   disappears inside a dark swatch. */
+/* Swatch — Figma 4.839 x 39.632, 0.5px solid #000000, flush to the left edge
+   of its cell (135.5 = 271 / 2 = the start of the second cell).
+   The stroke doubles as the outline that keeps a White swatch visible against
+   the white cell; inside a dark swatch it simply disappears.
+   4.839 + 8.161 = 13px, so the value text lines up with the size field. */
 .ecom-product-modal__color-swatch {
-  width: 8px;
-  height: 100%;
-  margin-right: 8px;
+  width: 4.839px;
+  height: 39.632px;          /* the cell is 45 tall -> 2.68 above and below */
+  margin-right: 8.161px;
+  border: 0.5px solid #000000;
   background: #cccccc;
-  box-shadow: inset 0 0 0 1px #000000;
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 
