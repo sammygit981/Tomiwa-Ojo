@@ -67,8 +67,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 }
 
 /* 3b. BUTTONS ------------------------------------------------------------- */
-/* Shared shell. Each button only declares its own size, colours and the two
-   --fill-* variables consumed by the shared ::before layer below. */
 .tisso-header__gift-button,
 .tisso-menu__gift-button,
 .tisso-gift-banner__cta {
@@ -77,23 +75,17 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
-  overflow: hidden;                 /* clips the over-wide fill layer */
+  overflow: hidden;                 
   font-family: var(--tisso-font);
   font-weight: 400;
   font-size: 16px;
   line-height: 20.48px;
   text-transform: uppercase;
   text-decoration: none;
-  /* Delayed so the text flips only once the fill has arrived under it */
-  transition: color 250ms ease 120ms;
+  transition: color 300ms ease; 
 }
 
-/* The "gas fill".
-   The layer is twice the button width: its LEFT half is solid and its RIGHT
-   half fades to transparent. Parked at translateX(-100%) it sits entirely
-   off-canvas; sliding to 0 sweeps the soft edge across first and settles the
-   solid half exactly over the button. That diffuse leading edge is what
-   reads as gas filling in rather than a door sliding across. */
+/* The Solid Wipe Layer */
 .tisso-header__gift-button::before,
 .tisso-menu__gift-button::before,
 .tisso-gift-banner__cta::before {
@@ -102,22 +94,17 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   top: 0;
   left: 0;
   z-index: 0;
-  width: 200%;
+  width: 100%;               /* Changed from 200% to 100% for a clean edge */
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--fill-solid) 0%,
-    var(--fill-solid) 50%,
-    var(--fill-fade) 100%
-  );
-  transform: translateX(-100%);
+  background: var(--fill-solid); /* Removed linear-gradient, now using solid color */
+  transform: translateX(-100%); /* Starts completely off-screen to the left */
   transition: transform var(--tisso-fill-time) var(--tisso-fill-ease);
 }
 
 .tisso-header__gift-button:hover::before,
 .tisso-menu__gift-button:hover::before,
 .tisso-gift-banner__cta:hover::before {
-  transform: translateX(0);
+  transform: translateX(0);    /* Slides in perfectly to cover the button */
 }
 
 /* Label and arrow ride above the fill */
@@ -139,47 +126,9 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   display: inline-block;
   width: 24px;
   height: 1.5px;
-  background: currentColor;
+  background: currentColor; /* This ensures it changes color with the text */
   transform: translateZ(0);
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-.tisso-header__gift-arrow span,
-.tisso-menu__gift-arrow span,
-.tisso-gift-banner__cta-arrow::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 50%;
-  box-sizing: border-box;
-  width: 7px;
-  height: 7px;
-  border-top: 1.5px solid currentColor;
-  border-right: 1.5px solid currentColor;
-  transform: translateY(-50%) rotate(45deg);
-}
-
-/* Hover cycle: vanish on frame one, hold for --tisso-arrow-hold, then ease
-   back in from the left. A transition cannot express 1 -> 0 -> 1 within a
-   single state, so this has to be a keyframe animation.
-   The final frame equals the resting state, so leaving the button is seamless. */
-@keyframes tisso-arrow-cycle {
-  0%, 80% {
-    opacity: 0;
-    transform: translateX(-8px) translateZ(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) translateZ(0);
-  }
-}
-
-.tisso-header__gift-button:hover .tisso-header__gift-arrow,
-.tisso-menu__gift-button:hover .tisso-menu__gift-arrow,
-.tisso-gift-banner__cta:hover .tisso-gift-banner__cta-arrow {
-  /* 80% of 2.5s = 2s hidden, then 0.5s to return */
-  animation: tisso-arrow-cycle 2.5s var(--tisso-fill-ease) forwards;
+  transition: color 300ms ease; /* Matches the text transition */
 }
 
 /* 4. DESKTOP HEADER ------------------------------------------------------- */
