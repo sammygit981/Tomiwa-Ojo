@@ -84,13 +84,8 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   line-height: 20.48px;
   text-transform: uppercase;
   text-decoration: none;
-  transition: color 180ms ease var(--label-leave, 0ms);
-}
-
-.tisso-header__gift-button:hover,
-.tisso-menu__gift-button:hover,
-.tisso-gift-banner__cta:hover {
-  transition-delay: var(--label-enter, 0ms);
+  /* Delayed so the text flips only once the fill has arrived under it */
+  transition: color 250ms ease 120ms;
 }
 
 /* The "gas fill".
@@ -99,8 +94,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
    off-canvas; sliding to 0 sweeps the soft edge across first and settles the
    solid half exactly over the button. That diffuse leading edge is what
    reads as gas filling in rather than a door sliding across. */
-/* Fill layer — slides left to right.*/
-
 .tisso-header__gift-button::before,
 .tisso-menu__gift-button::before,
 .tisso-gift-banner__cta::before {
@@ -109,12 +102,12 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   top: 0;
   left: 0;
   z-index: 0;
-  width: 120%;
+  width: 200%;
   height: 100%;
   background: linear-gradient(
     90deg,
     var(--fill-solid) 0%,
-    var(--fill-solid) 83.33%,
+    var(--fill-solid) 50%,
     var(--fill-fade) 100%
   );
   transform: translateX(-100%);
@@ -171,10 +164,15 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
    back in from the left. A transition cannot express 1 -> 0 -> 1 within a
    single state, so this has to be a keyframe animation.
    The final frame equals the resting state, so leaving the button is seamless. */
-   
 @keyframes tisso-arrow-cycle {
-  0%, 80% { opacity: 0; }
-  100%    { opacity: 1; }
+  0%, 80% {
+    opacity: 0;
+    transform: translateX(-8px) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateZ(0);
+  }
 }
 
 .tisso-header__gift-button:hover .tisso-header__gift-arrow,
@@ -216,8 +214,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 .tisso-header__gift-button {
   --fill-solid: var(--tisso-black);
   --fill-fade: rgba(0, 0, 0, 0);
-  --label-enter: 0ms;
-  --label-leave: 380ms;
 
   flex-shrink: 0;
   width: 207px;
@@ -241,8 +237,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 .tisso-menu__gift-button {
   --fill-solid: var(--tisso-black);
   --fill-fade: rgba(0, 0, 0, 0);
-  --label-enter: 0ms;
-  --label-leave: 380ms;
 
   width: 207px;
   height: 44px;
@@ -351,8 +345,6 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 .tisso-gift-banner__cta {
   --fill-solid: var(--tisso-yellow);
   --fill-fade: rgba(255, 245, 68, 0);
-  --label-enter: 380ms;
-  --label-leave: 0ms;
 
   position: absolute;
   left: 4.6528%;
