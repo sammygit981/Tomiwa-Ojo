@@ -200,11 +200,20 @@
   height: 100%;
 }
 
-/* Figma stores the mark as a 12 x 12 shape turned 45deg. Add this class in
-   the section markup ONLY if close-icon.svg is exported as an upright cross;
-   if the asset is already an X, leave it off. */
-.ecom-product-modal__close--rotate img {
+/* Figma stores the mark as a 12 x 12 cross with a 45deg rotation applied,
+   so the asset ships upright and the rotation belongs here. Rotating rather
+   than scaling keeps the stroke at its true 1.5px. */
+.ecom-product-modal__close img {
   transform: rotate(45deg);
+  transform-origin: center;
+}
+
+/* The visual mark is only 12px, which is far below a comfortable tap target.
+   This invisible pad enlarges the hit area without moving the icon. */
+.ecom-product-modal__close::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
 }
 
 /* Summary — 17 + 120 + 8 + 146 + 20 = 311 ---------------------------------- */
