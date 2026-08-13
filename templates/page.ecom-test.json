@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "tisso_banner": {
@@ -19,12 +28,42 @@
     "ecom_product_grid": {
       "type": "ecom-product-grid",
       "blocks": {
-        "product_1": { "type": "product", "settings": { "product": "black-leather-bag" } },
-        "product_2": { "type": "product", "settings": { "product": "blue-silk-tuxedo" } },
-        "product_3": { "type": "product", "settings": { "product": "chequered-red-shirt" } },
-        "product_4": { "type": "product", "settings": { "product": "classic-leather-jacket" } },
-        "product_5": { "type": "product", "settings": { "product": "classic-varsity-top" } },
-        "product_6": { "type": "product", "settings": { "product": "dark-denim-top" } }
+        "product_1": {
+          "type": "product",
+          "settings": {
+            "product": "black-leather-bag"
+          }
+        },
+        "product_2": {
+          "type": "product",
+          "settings": {
+            "product": "blue-silk-tuxedo"
+          }
+        },
+        "product_3": {
+          "type": "product",
+          "settings": {
+            "product": "chequered-red-shirt"
+          }
+        },
+        "product_4": {
+          "type": "product",
+          "settings": {
+            "product": "classic-leather-jacket"
+          }
+        },
+        "product_5": {
+          "type": "product",
+          "settings": {
+            "product": "classic-varsity-top"
+          }
+        },
+        "product_6": {
+          "type": "product",
+          "settings": {
+            "product": "chequered-red-shirt"
+          }
+        }
       },
       "block_order": [
         "product_1",
@@ -38,15 +77,18 @@
         "heading": "Tisso vison in the wild",
         "add_to_cart_label": "ADD TO CART",
         "soft_winter_jacket": "soft-winter-jacket",
+        "bonus_trigger_options": "Black, Medium",
         "size_placeholder": "Choose your size",
+        "close_label": "Close",
         "select_options_text": "Please select all options",
         "unavailable_text": "Sold out",
         "added_text": "Added to cart",
-        "error_text": "Something went wrong, please try again",
-        "close_label": "Close",
-        "bonus_trigger_options": "Black, Medium"
+        "error_text": "Something went wrong, please try again"
       }
     }
   },
-  "order": ["tisso_banner", "ecom_product_grid"]
+  "order": [
+    "tisso_banner",
+    "ecom_product_grid"
+  ]
 }
