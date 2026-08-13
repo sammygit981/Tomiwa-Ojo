@@ -315,6 +315,32 @@
       if (event.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
     });
 
+        /**
+     * Returns null when:
+     *  - no bonus product is configured in the customizer
+     *  - the trigger values (e.g. Black + Medium) are not all selected
+     *  - the product being added IS the bonus product (would add it twice)
+     *  - no bonus variant is in stock
+     *
+     * That last check matters: cart/add.js is atomic, so a sold-out bonus id
+     * makes Shopify reject the WHOLE request and the main product would
+     * silently fail to add as well.
+     */
+    const getBonusVariant = () => {
+      if (!bonusProduct || !bonusTriggers.length) return null;
+
+      const chosen = Object.values(state.selections).map((value) => value.toLowerCase());
+      const matchesTriggers = bonusTriggers.every((trigger) => chosen.includes(trigger));
+      if (!matchesTriggers) return null;
+
+      const variants = bonusProduct.variants || [];
+
+      // Never stack the bonus product on top of itself
+      if (variants.some((variant) => variant.id === state.variant.id)) return null;
+
+      return variants.find((variant) => variant.available) || null;
+    };
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!state.product) return;
@@ -329,16 +355,10 @@
         return;
       }
 
-      const chosen = Object.values(state.selections).map((value) => value.toLowerCase());
-      const wantsBonus = bonusTriggers.length > 0 && bonusTriggers.every((t) => chosen.includes(t));
+            const items = [{ id: state.variant.id, quantity: 1 }];
 
-      const items = [{ id: state.variant.id, quantity: 1 }];
-
-      if (wantsBonus && bonusProduct) {
-        const bonusVariant =
-          bonusProduct.variants.find((variant) => variant.available) || bonusProduct.variants[0];
-        if (bonusVariant) items.push({ id: bonusVariant.id, quantity: 1 });
-      }
+      const bonusVariant = getBonusVariant();
+      if (bonusVariant) items.push({ id: bonusVariant.id, quantity: 1 });
 
       ui.submit.setAttribute('aria-busy', 'true');
       setStatus('');
@@ -350,14 +370,20 @@
           body: JSON.stringify({ items }),
         });
 
-        if (!response.ok) throw new Error('Cart add failed');
+              if (!response.ok) {
+          // Surface Shopify's own reason (sold out, invalid id...) instead of a
+          // generic failure, so the cause is visible while debugging.
+          const detail = await response.json().catch(() => null);
+          throw new Error(detail?.description || `Cart add failed (${response.status})`);
+        }
 
         setStatus(copy.added);
         // Let the theme know the cart changed so any cart UI can refresh
         document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
       } catch (error) {
+        console.error('Ecom grid: add to cart failed —', error.message);
         setStatus(copy.error);
-      } finally {
+      } finally { 
         ui.submit.removeAttribute('aria-busy');
       }
     });

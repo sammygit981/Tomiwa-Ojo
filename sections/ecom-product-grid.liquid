@@ -99,7 +99,7 @@
     <div class="ecom-product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ecom-modal-title">
       <button
         type="button"
-        class="ecom-product-modal__close ecom-product-modal__close--rotate"
+          class="ecom-product-modal__close"
         data-modal-close
         aria-label="{{ section.settings.close_label | escape }}"
       >
@@ -137,10 +137,12 @@
       {
         "variants": [
           {%- for variant in section.settings.soft_winter_jacket.variants -%}
-            { "id": {{ variant.id }}, "available": {{ variant.available }} }
+                        { "id": {{ variant.id }}, "available": {{ variant.available }} }
             {%- unless forloop.last -%},{%- endunless -%}
           {%- endfor -%}
-        ]
+        ],
+        "handle": {{ section.settings.soft_winter_jacket.handle | json }},
+        "title": {{ section.settings.soft_winter_jacket.title | json }}
       }
     {%- else -%}
       null
