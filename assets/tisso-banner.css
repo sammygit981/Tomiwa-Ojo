@@ -102,7 +102,7 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   width: 100%;
   height: 100%;
   background: #000000;
-  transform: translateX(-100%);
+  transform: translateX(-101%);
   transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
   z-index: 0;
 }
@@ -151,6 +151,7 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 }
 
 .tisso-header__gift-button:hover {
+  background: #000000;
   color: #ffffff;
 }
 
@@ -298,7 +299,8 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 
   overflow: hidden;
 
-  transition: color 350ms cubic-bezier(0.25, 1, 0.5, 1);
+  transition: color 350ms cubic-bezier(0.25, 1, 0.5, 1),
+            background-color 350ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 
@@ -306,19 +308,10 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 .tisso-gift-banner__cta::before {
   content: "";
   position: absolute;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
+  inset: 0;
   background: #fff544;
-
-  transform: translateX(-100%);
-
+  transform: translateX(-101%);
   transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
-
   z-index: 0;
 }
 
@@ -329,14 +322,12 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   z-index: 1;
 }
 
-
-/* hover */
 .tisso-gift-banner__cta:hover::before {
   transform: translateX(0);
 }
 
-
 .tisso-gift-banner__cta:hover {
+  background: #fff544;
   color: #000000;
 }
 
