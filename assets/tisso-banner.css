@@ -1,0 +1,685 @@
+/* Scoped: Tisso candidate test page */
+/* The test page shows only the two custom sections: the theme header,
+   footer and any other section in the template (page title / rich text)
+   are hidden instead of being matched by a brittle selector. */
+body:has([data-tisso-banner]) #header-group,
+body:has([data-tisso-banner]) footer,
+body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tisso-banner])):not(:has([data-ecom-product-grid-section])) {
+  display: none !important;
+}
+
+.tisso-banner {
+  background: #ffffff;
+  padding-bottom: 0;   
+}
+
+.tisso-header {
+  position: relative;
+  z-index: 200;
+  width: 100%;
+}
+
+/* Desktop header */
+.tisso-header__desktop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 10px 50px;
+  background: #f5f5f5;
+}
+
+.tisso-header__logo {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  width: 151.44px;
+  height: 19px;
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------
+   Logo wordmark — one image rule shared by the desktop header,
+   the mobile bar and the open mobile drawer.
+   Box is 151.44 x 19 (Figma); the SVG scales inside it.
+   -------------------------------------------------------------- */
+.tisso-logo__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Wordmark inside the open mobile drawer bar */
+.tisso-menu__logo {
+  display: inline-flex;
+  align-items: center;
+  width: 151.44px;
+  height: 19px;
+}
+
+.tisso-header__message {
+  margin: 0;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 13.42px;
+  color: #000000;
+  text-align: center;
+}
+
+/* Tisso Header Gift Button */
+.tisso-header__gift-button {
+  position: relative;
+  flex-shrink: 0;
+  width: 207px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Evenly space text and arrow */
+  padding: 0 20px 0 24px;         /* Match exact Figma horizontal padding */
+  background: #fff544;
+  color: #000000;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20.48px;
+  text-transform: uppercase;
+  text-decoration: none;
+  overflow: hidden;
+  transition: color 350ms ease;
+  box-sizing: border-box;
+}
+
+/* Slide-in black background overlay.
+   Opacity rides along with the slide so the panel materialises as it
+   travels instead of arriving fully formed. The fade finishes 50ms
+   ahead of the motion, so the fill is solid by the time it settles. */
+.tisso-header__gift-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  opacity: 0;
+
+  /* rest state: collapse toward the RIGHT edge (exit direction) */
+  transform: scaleX(0);
+  transform-origin: right center;
+
+  transition:
+    transform 350ms cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 300ms ease-out;
+  z-index: 0;
+}
+
+.tisso-header__gift-button:hover::before,
+.tisso-header__gift-button:focus-visible::before {
+  opacity: 1;
+  /* hover: grow from the LEFT edge */
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+/* Keep text and arrow above the sliding black background */
+.tisso-header__gift-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tisso-header__gift-text {
+  margin-right: 0; /* Clear hardcoded margin so flex layout handles spacing */
+}
+
+/* Arrow container with smooth horizontal translation */
+.tisso-header__gift-arrow {
+  position: relative;
+  right: auto;
+  top: auto;
+  display: inline-block;
+  width: 24px;
+  height: 1.5px;
+  background-color: currentColor;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Arrowhead tip */
+.tisso-header__gift-arrow span {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  box-sizing: border-box;
+}
+
+.tisso-header__gift-button:hover {
+  color: #ffffff;
+}
+
+/* Smooth arrow shift on hover */
+.tisso-header__gift-button:hover .tisso-header__gift-arrow {
+  transform: translateX(4px) translateZ(0);
+}
+
+.tisso-header__mobile {
+  display: none;
+}
+
+.tisso-menu {
+  display: none;
+}
+
+/* Gift guide hero */
+.tisso-gift-banner__frame {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  aspect-ratio: 1440 / 780;
+  margin: 0 auto;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.tisso-gift-banner__illustrations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+   Gift-guide artwork — exact Figma placement inside the 1440x780 frame
+   Top    : x 0    y 0    w 1440  h 390   (Figma y 64 - 64px header)
+   Bottom : x 550  y 378  w 890   h 402   (378 + 402 = 780 -> flush bottom)
+   Expressed in % so the art scales down with the frame and the two
+   halves can never overlap each other or the copy column.
+   --------------------------------------------------------------- */
+.tisso-gift-banner__illus {
+  position: absolute;
+  display: block;
+  max-width: none;
+  object-fit: contain;
+}
+
+/* Top art: full width, height follows ratio so it never letterboxes */
+.tisso-gift-banner__illus-top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;              /* proportional — closes the mid gap */
+}
+
+/* Bottom art: anchored bottom-right; height scales with its width,
+   which naturally opens space above it for the title/description */
+.tisso-gift-banner__illus-bottom {
+  top: auto;
+  bottom: 0;
+  left: 38.1944%;           /* 550 / 1440 */
+  width: 61.8056%;          /* 890 / 1440 */
+  height: auto;             /* proportional */
+}
+
+/* Copy column ends at 67 + 483 = 550px, the exact left edge of the bottom
+   artwork. 425 (title) + 70 + 50 + 84 (3 lines) + 50 = 679 = the Figma
+   y-position of SHOP NOW, so one gap value drives the whole column. */
+/* Copy column — each element carries its own Figma coordinate as a % of the
+   1440 x 780 frame (Figma y minus the 64px header), so no amount of text
+   reflow can push SHOP NOW out of the frame.
+   x 67 -> 4.6528%  |  title y 489-64=425 -> 54.4872%
+   description y 545 -> 69.8718%  |  CTA y 743-64=679 -> 87.0513%
+   679 + 50 = 729, leaving 51px of white below the button. */
+.tisso-gift-banner__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Figma title box: 459 x 70 */
+/* The column runs to 67 + 483 = 550px, the left edge of the bottom artwork,
+   so a single line always has room and can never touch the illustration. */
+.tisso-gift-banner__title {
+  position: absolute;
+  left: 4.6528%;
+  top: 54.4872%;
+  width: 33.5417%;   /* 483 / 1440 */
+  margin: 0;
+  font-family: "Jost", sans-serif;
+  font-weight: 500;
+  line-height: 1;
+  color: #000000;
+  white-space: nowrap;
+
+  /* vw first as the fallback, cqw wins where container queries are supported */
+  font-size: clamp(30px, 4.8611vw, 70px);
+  font-size: clamp(30px, 4.8611cqw, 70px);  /* 70 / 1440 */
+}
+
+/* 67 + 483 = 550 = the exact left edge of the bottom artwork */
+.tisso-gift-banner__description {
+  position: absolute;
+  left: 4.6528%;
+  top: 69.8718%;
+  width: 33.5417%;                        /* 483 / 1440 */
+  margin: 0;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: clamp(13px, 1.3889vw, 20px);
+  font-size: clamp(13px, 1.3889cqw, 20px);  /* 20 / 1440 */
+  line-height: 1.4;
+  color: #000000;
+  white-space: pre-line;
+}
+
+.tisso-gift-banner__description--mobile {
+  display: none;
+}
+/* SHOP NOW — Figma 220 x 50 at (67, 743); y 743 - 64 header = 679 */
+.tisso-gift-banner__cta {
+  position: absolute;
+  left: 4.6528%;                          /*  67 / 1440 */
+  top: 87.0513%;                          /* 679 /  780 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: clamp(150px, 15.2778vw, 220px);  /* 220 / 1440 */
+  height: clamp(36px, 3.4722vw, 50px);    /*  50 / 1440 */
+  padding: 0 20px;
+
+  background: #000000;
+  color: #ffffff;
+
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20.48px;
+
+  text-transform: uppercase;
+  text-decoration: none;
+
+  overflow: hidden;
+
+  /* Matches the fill timing so colour and motion stay in sync */
+  transition: color 350ms ease;
+}
+
+/* Yellow slide layer — same interaction language as the header button:
+   the fill fades up as it slides across, and reverses on mouse-out. */
+.tisso-gift-banner__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff544;
+  opacity: 0;
+
+  transform: scaleX(0);
+  transform-origin: right center;
+
+  transition:
+    transform 350ms cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 300ms ease-out;
+  z-index: 0;
+}
+
+.tisso-gift-banner__cta:hover::before,
+.tisso-gift-banner__cta:focus-visible::before {
+  opacity: 1;
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+/* keep text and arrow above animation */
+.tisso-gift-banner__cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tisso-gift-banner__cta:hover {
+  color: #000000;
+}
+
+/* Arrow — 24px rule plus a rotated square as the head.
+   translateZ(0) promotes it to its own layer so the 1.5px line is
+   rasterised once instead of on every frame, which is what made it
+   blink out at the start of the hover. */
+.tisso-gift-banner__cta-arrow {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.tisso-gift-banner__cta-arrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  box-sizing: border-box;
+}
+
+.tisso-gift-banner__cta:hover .tisso-gift-banner__cta-arrow {
+  transform: translateX(4px) translateZ(0);
+}
+
+/* Mobile drawer button keeps the simple invert */
+.tisso-menu__gift-button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Strip frame — Figma 1440 x 34, padding 10px 50px, #F5F5F5, no border */
+.tisso-gift-banner__strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1440px;
+  height: 34px;
+  margin: 0 auto;
+  border: 0;
+  padding: 10px 50px;
+  background: #f5f5f5;
+}
+
+/* Strip text — Jost 400 / 16px / 13.42px, centred (10 + 14 + 10 = 34) */
+.tisso-gift-banner__strip-text {
+  display: block;
+  font-family: "Jost", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 13.42px;
+  letter-spacing: 0;
+  color: #000000;
+  text-align: center;
+}
+
+.tisso-gift-banner__strip--mobile {
+  display: none;
+}
+
+/* ==========================================================================
+   Mobile — Figma frame 375.44 x 520 = header 65 + hero 421 + strip 34
+   ========================================================================== */
+@media screen and (max-width: 749px) {
+  .tisso-banner { padding-bottom: 0; }
+
+  .tisso-header__desktop { display: none; }
+
+  /* Header — 375.44 x 65, padding 23px 16px, #F7F7F7, 0 2px 4px #00000026 */
+  .tisso-header__mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+    height: 65px;
+    padding: 23px 16px;
+    background: #f7f7f7;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  /* The drawer carries its own bar, so the collapsed one is swapped out
+     (otherwise the wordmark renders twice). */
+  .tisso-header.is-menu-open .tisso-header__mobile { display: none; }
+
+  .tisso-header__menu-button {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .tisso-header__menu-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 18px;
+  }
+
+  .tisso-header__menu-icon span {
+    display: block;
+    height: 1.5px;
+    background: #000000;
+  }
+
+  .tisso-header__mobile-logo {
+    display: inline-flex;
+    align-items: center;
+    width: 151.44px;
+    height: 19px;
+    text-decoration: none;
+  }
+
+  /* Drawer */
+  .tisso-menu.is-open {
+    display: block;
+    background: #f7f7f7;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  .tisso-menu__bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+    height: 65px;
+    padding: 0 16px;
+  }
+
+  .tisso-menu__close {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    color: #000000;
+    cursor: pointer;
+  }
+
+  .tisso-menu__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 32px;
+    text-align: center;
+  }
+
+  .tisso-menu__content p {
+    margin: 0 0 20px;
+    font-family: "Jost", sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.3em;
+    color: #000000;
+  }
+
+  .tisso-menu__gift-button {
+    position: relative;
+    width: 207px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff544;
+    color: #000000;
+    font-family: "Jost", sans-serif;
+    font-size: 16px;
+    line-height: 20.48px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+
+  .tisso-menu__gift-arrow {
+    position: absolute;
+    right: 20px;
+    width: 24px;
+    border-top: 1.5px solid currentColor;
+  }
+
+  .tisso-menu__gift-arrow span {
+    position: absolute;
+    right: 0;
+    top: -4px;
+    width: 8px;
+    height: 8px;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  /* ---------- Hero — 375.44 x 421 ----------
+     Every child keeps its Figma coordinate, expressed as a % of the frame
+     so the whole composition scales as one unit on any phone width. */
+  .tisso-gift-banner__frame {
+    --illus-x: -37.2872%;  /* -140 / 375.44 */
+    --illus-y:  37.2922%;  /*  157 / 421    */
+    --illus-w: 182.6923%;  /*  686 / 375.44 */
+    --illus-h:  62.7078%;  /*  264 / 421    */
+
+    width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 375.44 / 421;
+    margin: 0;
+    overflow: hidden;      /* the artwork bleeds past both edges */
+  }
+
+  /* Desktop auto-layout off: children are placed individually */
+  .tisso-gift-banner__content {
+    display: block;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  /* 197 x 30 @ y 49 — Jost 500 / 30px / 100% */
+  .tisso-gift-banner__title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 11.639%;          /* 49 / 421 */
+    width: auto;           /* clears the desktop 33.5417% */
+    margin: 0;
+    font-size: 30px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .tisso-gift-banner__description--desktop { display: none; }
+
+  /* 340 x 42 @ y 103 — Jost 400 / 16px / 130% */
+  .tisso-gift-banner__description--mobile {
+    position: absolute;
+    left: 50%;
+    top: 24.4656%;         /* 103 / 421 */
+    transform: translateX(-50%);
+    display: block;
+    width: 90.5711%;       /* 340 / 375.44 */
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+    text-align: center;
+    white-space: normal;
+  }
+
+  /* 686 x 264 @ (-140, 157). cover crops the SVG to the box instead of
+     letterboxing or distorting it when its natural ratio differs. */
+  .tisso-gift-banner__illus-top {
+    display: block;
+    left: var(--illus-x);
+    top: var(--illus-y);
+    width: var(--illus-w);
+    height: var(--illus-h);
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .tisso-gift-banner__illus-bottom { display: none !important; }
+
+  /* 193 x 45 @ y 337, padding 13px 20px, gap 10px */
+  .tisso-gift-banner__cta {
+    position: absolute;
+    left: 50%;
+    top: 80.0475%;         /* 337 / 421 */
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    width: 193px;
+    height: 45px;
+    margin: 0;
+    padding: 13px 20px;
+    gap: 10px;
+  }
+
+  /* ---------- Strip — 375 x 34 ---------- */
+  .tisso-gift-banner__strip--desktop { display: none; }
+  .tisso-gift-banner__strip--mobile { display: flex; }
+
+  /* Figma's 50px side padding would clip the 288px line inside 375px,
+     so the line is capped and the frame keeps its exact 34px height. */
+  .tisso-gift-banner__strip { padding: 10px 16px; }
+
+  .tisso-gift-banner__strip-text {
+    max-width: 288px;
+    font-size: 14px;
+    line-height: 13.42px;
+  }
+}
+/* ==========================================================================
+   Reduced motion — keep the state change, drop the travel
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .tisso-header__gift-button::before,
+  .tisso-gift-banner__cta::before {
+    transform: scaleX(1);              /* no sweep — opacity carries the change */
+    transform-origin: left center;
+    transition: opacity 200ms ease-out;
+  }
+
+  .tisso-header__gift-arrow,
+  .tisso-gift-banner__cta-arrow {
+    transition: none;
+  }
+
+  .tisso-header__gift-button:hover .tisso-header__gift-arrow,
+  .tisso-header__gift-button:focus-visible .tisso-header__gift-arrow,
+  .tisso-gift-banner__cta:hover 
+}

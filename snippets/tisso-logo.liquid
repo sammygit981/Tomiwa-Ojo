@@ -1,0 +1,15 @@
+{%- comment -%}
+  TISSO VISON wordmark.
+  Rendered from the uploaded SVG asset so the logo is defined in one place only.
+
+  Accepts:
+  - alt_text {String} - accessible name (falls back to "TISSO VISON")
+{%- endcomment -%}
+
+<img
+  src="{{ 'tisso-vison.svg' | asset_url }}"
+  alt="{{ alt_text | default: 'TISSO VISON' | escape }}"
+  width="151"
+  height="19"
+  class="tisso-logo__img"
+>

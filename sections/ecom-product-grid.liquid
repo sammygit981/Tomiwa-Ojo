@@ -1,0 +1,213 @@
+{%- comment -%}
+  Ecom Product Grid
+  - 6 product blocks, each selectable from the customizer
+  - Every block renders a card (even when empty) so the 3x2 layout, and
+    therefore the hotspot numbering, always matches the design
+  - Product data is printed once per card as JSON for the quick-view popup
+  - Prices are pre-formatted with the store's money format (no JS guessing)
+{%- endcomment -%}
+
+{{ 'ecom-product-grid.css' | asset_url | stylesheet_tag }}
+
+<section class="section-ecom-product-grid" data-ecom-product-grid-section>
+  <div class="ecom-product-grid__inner">
+    <h2 class="ecom-product-grid__heading">{{ section.settings.heading }}</h2>
+
+    <div class="ecom-product-grid__items">
+      {%- for block in section.blocks -%}
+        {%- assign product = block.settings.product -%}
+
+        {%- comment -%} forloop.index == the visual slot, so hotspot--N always lines up {%- endcomment -%}
+        <article
+          class="ecom-product-card ecom-product-card--{{ forloop.index }}"
+          data-product-card
+          {{ block.shopify_attributes }}
+        >
+          <div class="ecom-product-card__media{% if product == blank %} ecom-product-card__media--empty{% endif %}">
+            {%- if product != blank -%}
+              {%- if product.featured_image -%}
+                {{
+                  product.featured_image
+                  | image_url: width: 900
+                  | image_tag: class: 'ecom-product-card__image', loading: 'lazy', alt: product.title
+                }}
+              {%- endif -%}
+
+              <button
+                type="button"
+                class="product-hotspot ecom-product-hotspot ecom-product-hotspot--{{ forloop.index }}"
+                data-product-trigger
+                aria-label="Quick view: {{ product.title | escape }}"
+              >
+                <span class="product-hotspot__plus" aria-hidden="true"></span>
+              </button>
+
+              <script type="application/json" data-product-data>
+                {
+                  "id": {{ product.id }},
+                  "title": {{ product.title | json }},
+                  "description": {{ product.description | json }},
+                  "price_formatted": {{ product.price | money | strip_html | json }},
+                  "featured_image": {{ product.featured_image | image_url: width: 800 | json }},
+                  "options": [
+                    {%- for option in product.options_with_values -%}
+                      {
+                        "name": {{ option.name | json }},
+                        "values": {{ option.values | json }}
+                      }{% unless forloop.last %},{% endunless %}
+                    {%- endfor -%}
+                  ],
+                  "variants": [
+                    {%- for variant in product.variants -%}
+                      {
+                        "id": {{ variant.id }},
+                        "price_formatted": {{ variant.price | money | strip_html | json }},
+                        "available": {{ variant.available }},
+                        "options": {{ variant.options | json }}
+                      }{% unless forloop.last %},{% endunless %}
+                    {%- endfor -%}
+                  ]
+                }
+              </script>
+            {%- endif -%}
+          </div>
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- comment -%}
+    Quick-view popup. Every string, icon and endpoint is supplied by Liquid so
+    the JavaScript contains no hardcoded content.
+  {%- endcomment -%}
+  <div
+    class="ecom-product-modal"
+    data-product-modal
+    aria-hidden="true"
+    data-cart-add-url="{{ routes.cart_add_url }}"
+    data-size-placeholder="{{ section.settings.size_placeholder | escape }}"
+    data-select-options="{{ section.settings.select_options_text | escape }}"
+    data-unavailable="{{ section.settings.unavailable_text | escape }}"
+    data-added="{{ section.settings.added_text | escape }}"
+    data-error="{{ section.settings.error_text | escape }}"
+    data-bonus-options="{{ section.settings.bonus_trigger_options | escape }}"
+    data-bonus-added="{{ section.settings.bonus_added_text | escape }}"
+    data-icon-down="{{ 'down-arrow.svg' | asset_url }}"
+    data-icon-up="{{ 'up-arrow.svg' | asset_url }}"
+  >
+    <div class="ecom-product-modal__backdrop" data-modal-close></div>
+
+    <div class="ecom-product-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ecom-modal-title">
+      <button
+        type="button"
+          class="ecom-product-modal__close"
+        data-modal-close
+        aria-label="{{ section.settings.close_label | escape }}"
+      >
+        <img src="{{ 'close-icon.svg' | asset_url }}" alt="" width="12" height="12">
+      </button>
+
+      <div class="ecom-product-modal__top">
+        <div class="ecom-product-modal__media">
+          <img data-modal-image src="" alt="" width="120" height="140" class="ecom-product-modal__image">
+        </div>
+        <div class="ecom-product-modal__summary">
+          <h2 id="ecom-modal-title" data-modal-title class="ecom-product-modal__title"></h2>
+          <div data-modal-price class="ecom-product-modal__price"></div>
+          <div data-modal-description class="ecom-product-modal__description"></div>
+        </div>
+      </div>
+
+      <form class="ecom-product-modal__form" data-product-form>
+        <div data-modal-options class="ecom-product-modal__options"></div>
+
+        <button type="submit" class="ecom-product-modal__add" data-add-to-cart>
+          <span class="ecom-product-modal__add-label">{{ section.settings.add_to_cart_label }}</span>
+          <span class="ecom-product-modal__add-arrow" aria-hidden="true"></span>
+        </button>
+
+        {%- comment -%} Placed after the button so it never shifts the layout {%- endcomment -%}
+        <p data-modal-status class="ecom-product-modal__status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  {%- comment -%} Bonus product added automatically for the trigger option values {%- endcomment -%}
+  <script type="application/json" data-bonus-product>
+    {%- if section.settings.soft_winter_jacket != blank -%}
+      {
+        "variants": [
+          {%- for variant in section.settings.soft_winter_jacket.variants -%}
+                        { "id": {{ variant.id }}, "available": {{ variant.available }} }
+            {%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        ],
+        "handle": {{ section.settings.soft_winter_jacket.handle | json }},
+        "title": {{ section.settings.soft_winter_jacket.title | json }}
+      }
+    {%- else -%}
+      null
+    {%- endif -%}
+  </script>
+</section>
+
+<script src="{{ 'ecom-product-grid.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Ecom Product Grid",
+  "tag": "section",
+  "class": "section-ecom-product-grid",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Tisso vison in the wild" },
+    { "type": "text", "id": "add_to_cart_label", "label": "Add to cart label", "default": "ADD TO CART" },
+    {
+      "type": "product",
+      "id": "soft_winter_jacket",
+      "label": "Bonus product (Soft Winter Jacket)"
+    },
+    {
+      "type": "text",
+      "id": "bonus_trigger_options",
+      "label": "Bonus product trigger values",
+      "default": "Black, Medium",
+      "info": "Comma separated. When all of these values are selected the bonus product is added too."
+    },
+    { "type": "header", "content": "Popup text" },
+    { "type": "text", "id": "size_placeholder", "label": "Size placeholder", "default": "Choose your size" },
+    { "type": "text", "id": "close_label", "label": "Close button label", "default": "Close" },
+    { "type": "text", "id": "select_options_text", "label": "Message: options missing", "default": "Please select all options" },
+    { "type": "text", "id": "unavailable_text", "label": "Message: variant unavailable", "default": "Sold out" },
+      { "type": "text", "id": "added_text", "label": "Message: added to cart", "default": "Added to cart" },
+    {
+      "type": "text",
+      "id": "bonus_added_text",
+      "label": "Message: bonus product added",
+      "default": "Added to cart: {product} + {bonus}",
+      "info": "Shown instead of the normal message when the bonus product is included. {product} and {bonus} are replaced with the product names."
+    },
+    { "type": "text", "id": "error_text", "label": "Message: error", "default": "Something went wrong, please try again" }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [{ "type": "product", "id": "product", "label": "Product" }]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Ecom Product Grid",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}
