@@ -355,6 +355,10 @@
   transform: translateX(calc(var(--active-index) * 100%));
 }
 
+.ecom-product-modal__color-row.is-instant::before {
+  transition: none;
+}
+
 /* Sits above the sliding block */
 .ecom-product-modal__color-option {
   position: relative;
@@ -500,13 +504,18 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
-  scrollbar-width: thin;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* legacy Edge */
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);
   transition: opacity var(--modal-fade),
               transform var(--modal-fade),
               visibility 300ms;
+}
+/* WebKit / Blink */
+.ecom-product-modal__size-list::-webkit-scrollbar {
+  display: none;
 }
 
 .ecom-product-modal__size-select.is-open .ecom-product-modal__size-list {

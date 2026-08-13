@@ -116,12 +116,23 @@
         input.id = id;
         input.value = value;
         // No `checked`: the popup opens with nothing selected, as designed
-        input.addEventListener('change', () => {
+                input.addEventListener('change', () => {
           state.selections[option.name] = value;
-          // Slides the black block onto this cell (in from the left the
-          // first time, sideways after that)
+
+          // First pick fills in place; changing colour afterwards slides.
+          const isFirstPick = !row.classList.contains('is-active');
+          if (isFirstPick) row.classList.add('is-instant');
+
           row.style.setProperty('--active-index', valueIndex);
           row.classList.add('is-active');
+
+          if (isFirstPick) {
+            // Flush the frame so the jump is painted untransitioned,
+            // then restore the transition for subsequent changes.
+            void row.offsetWidth;
+            row.classList.remove('is-instant');
+          }
+
           syncVariant();
         });
 
