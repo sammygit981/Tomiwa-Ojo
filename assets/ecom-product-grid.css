@@ -200,14 +200,6 @@
   height: 100%;
 }
 
-/* Figma stores the mark as a 12 x 12 cross with a 45deg rotation applied,
-   so the asset ships upright and the rotation belongs here. Rotating rather
-   than scaling keeps the stroke at its true 1.5px. */
-.ecom-product-modal__close img {
-  transform: rotate(45deg);
-  transform-origin: center;
-}
-
 /* The visual mark is only 12px, which is far below a comfortable tap target.
    This invisible pad enlarges the hit area without moving the icon. */
 .ecom-product-modal__close::before {
@@ -323,18 +315,52 @@
   color: var(--modal-label-color);
 }
 
-/* Colour — Figma group: 271 x 40.44, 0.5px solid #000000 */
+/* Colour — Figma group: 271 x 40.44, 0.5px solid #000000.
+   --color-count and --active-index are written by the JS, so the control
+   works for any number of values, not just two. */
 .ecom-product-modal__color-row {
+  --color-count: 2;
+  --active-index: 0;
+
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   box-sizing: border-box;
   height: var(--modal-color-h);
   border: var(--modal-color-line);
-  overflow: hidden;
+  background: #ffffff;
+  overflow: hidden;   /* clips the indicator while it is parked off-canvas */
 }
 
-.ecom-product-modal__color-option { position: relative; min-width: 0; }
+/* One black block that travels between the cells instead of two cells
+   fading independently. It is parked just off the left edge until a value
+   is picked, so it slides IN from the left on the first selection and
+   slides sideways on every one after that - nothing is preselected. */
+.ecom-product-modal__color-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: calc(100% / var(--color-count));
+  background: #000000;
+  transform: translateX(-100%);
+  transition: transform var(--modal-fade);
+  pointer-events: none;
+}
+
+.ecom-product-modal__color-row.is-active::before {
+  transform: translateX(calc(var(--active-index) * 100%));
+}
+
+/* Sits above the sliding block */
+.ecom-product-modal__color-option {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
 
 .ecom-product-modal__color-option input {
   position: absolute;
@@ -347,7 +373,7 @@
   align-items: center;
   height: 100%;
   padding-right: 8px;
-  background: #ffffff;
+  background: transparent;   /* the sliding block shows through */
   color: #000000;
   font-family: "Jost", sans-serif;
   font-weight: 400;
@@ -380,7 +406,6 @@
 }
 
 .ecom-product-modal__color-option input:checked + .ecom-product-modal__color-label {
-  background: #000000;
   color: #ffffff;
 }
 

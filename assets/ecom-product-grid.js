@@ -103,6 +103,8 @@
       group.appendChild(el('span', 'ecom-product-modal__option-label', option.name));
 
       const row = el('div', 'ecom-product-modal__color-row');
+      // Drives the width of the sliding indicator in CSS
+      row.style.setProperty('--color-count', option.values.length);
 
       option.values.forEach((value, valueIndex) => {
         const id = `ecom-option-${index}-${valueIndex}`;
@@ -116,6 +118,10 @@
         // No `checked`: the popup opens with nothing selected, as designed
         input.addEventListener('change', () => {
           state.selections[option.name] = value;
+          // Slides the black block onto this cell (in from the left the
+          // first time, sideways after that)
+          row.style.setProperty('--active-index', valueIndex);
+          row.classList.add('is-active');
           syncVariant();
         });
 
