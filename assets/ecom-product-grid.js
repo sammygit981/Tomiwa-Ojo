@@ -168,13 +168,22 @@
         trigger.setAttribute('aria-expanded', String(open));
       };
 
-            trigger.addEventListener('click', () => {
-        const open = !select.classList.contains('is-open');
-        toggle(open);
-        // Glide the current choice into view instead of jumping to it
-        if (open) {
-          list.querySelector('.is-selected')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            /**
+       * Open: click anywhere on the field (value area or down arrow).
+       * Close: only the up arrow - clicking the value area again does nothing,
+       */
+      trigger.addEventListener('click', (event) => {
+        const isOpen = select.classList.contains('is-open');
+        const onArrow = Boolean(event.target.closest('.ecom-product-modal__size-cell'));
+
+        if (isOpen) {
+          if (onArrow) toggle(false);
+          return;
         }
+
+        toggle(true);
+        // Glide the current choice into view instead of jumping to it
+        list.querySelector('.is-selected')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       });
 
       /** Cross-fades the trigger text so the choice feels smooth. */
@@ -283,15 +292,10 @@
       node.addEventListener('click', closeModal);
     });
 
-    // Any click outside a dropdown closes it
-    modal.addEventListener('click', (event) => {
-      if (!event.target.closest('.ecom-product-modal__size-select')) closeAllDropdowns();
-    });
-
+        // No outside-click dismissal by design: the up arrow (or picking a value)
+    // is the only way to collapse the list.
     document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || !modal.classList.contains('is-open')) return;
-      if (modal.querySelector('.ecom-product-modal__size-select.is-open')) closeAllDropdowns();
-      else closeModal();
+      if (event.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
     });
 
     form.addEventListener('submit', async (event) => {

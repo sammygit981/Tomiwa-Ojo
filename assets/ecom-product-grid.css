@@ -133,7 +133,10 @@
   --modal-pad-right: 20px;
   --modal-media-w: 120px;
   --modal-media-h: 140px;
-  --modal-field-h: 45px;
+    --modal-color-h: 40.44px;   /* colour row  — Figma 271 x 40.44 */
+  --modal-field-h: 45px;      /* size field */
+  --modal-color-line: 0.5px solid #000000;
+  --modal-fade: 300ms ease-out;
   --modal-chevron-cell: 56px;
   --modal-value-size: 16px;   /* option values + placeholder */
   --modal-label-size: 14px;   /* "Color" / "Size" */
@@ -175,26 +178,33 @@
   background: #ffffff;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);  /* #00000033 */
 }
-
-/* Close — 12 x 12 at (278.79, 12.7) => right 20.21 / top 12.7 */
+/* Close — 12 x 12 at (278.79, 12.7) => right 311 - 278.79 - 12 = 20.21 */
 .ecom-product-modal__close {
   position: absolute;
   top: 12.7px;
   right: 20.21px;
   z-index: 8;
+  box-sizing: border-box;
   width: 12px;
   height: 12px;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: rgba(248, 248, 248, 0.9); /* #F8F8F8E5 */
   line-height: 0;
   cursor: pointer;
 }
 
 .ecom-product-modal__close img {
   display: block;
-  width: 12px;
-  height: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Figma stores the mark as a 12 x 12 shape turned 45deg. Add this class in
+   the section markup ONLY if close-icon.svg is exported as an upright cross;
+   if the asset is already an X, leave it off. */
+.ecom-product-modal__close--rotate img {
+  transform: rotate(45deg);
 }
 
 /* Summary — 17 + 120 + 8 + 146 + 20 = 311 ---------------------------------- */
@@ -219,14 +229,13 @@
   object-fit: cover;
 }
 
-/* Fixed stage the same height as the image: the name, price and description
-   are pinned to their own y, so they sit on identical lines for every
-   product (1-line or 2-line name) and can never spill past the image. */
+/* 82.58 (description offset) + 61.6 (4 lines) = 144.18.
+   Title and price are pinned, so every product shows them on identical
+   lines; the description then flows and gives the block its height. */
 .ecom-product-modal__summary {
   position: relative;
   min-width: 0;
-  height: var(--modal-media-h);
-  overflow: hidden;
+  height: 144.18px;
 }
 
 /* Jost Light 16 / 120% — Figma y39, 2-line slot (2 x 19.2 = 38.4) */
@@ -260,12 +269,13 @@
 }
 
 /* Jost Light 14 / 110% / -1% — Figma y119, clipped by the stage */
+
 .ecom-product-modal__description {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 82.58px;
-  bottom: 0;
+  margin-top: 82.58px;
+  height: 61.6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   font-family: "Jost", sans-serif;
   font-weight: 300;
@@ -286,7 +296,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 39.18px;   /* lands ADD TO CART on its Figma y377 */
+  margin-bottom: 39.56px;
 }
 
 .ecom-product-modal__option-group {
@@ -304,12 +314,15 @@
   color: var(--modal-label-color);
 }
 
-/* Colour — equal cells inside one outlined row */
+/* Colour — Figma group: 271 x 40.44, 0.5px solid #000000 */
 .ecom-product-modal__color-row {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  border: var(--modal-line);
+  box-sizing: border-box;
+  height: var(--modal-color-h);
+  border: var(--modal-color-line);
+  overflow: hidden;
 }
 
 .ecom-product-modal__color-option { position: relative; min-width: 0; }
@@ -323,7 +336,7 @@
 .ecom-product-modal__color-label {
   display: flex;
   align-items: center;
-  height: var(--modal-field-h);
+  height: 100%;
   padding-right: 8px;
   background: #ffffff;
   color: #000000;
@@ -333,28 +346,28 @@
   line-height: 1;
   letter-spacing: -0.02em;
   cursor: pointer;
-  border-right: var(--modal-line);
-  transition: background-color 260ms var(--modal-ease),
-              color 260ms var(--modal-ease);
+  border-right: var(--modal-color-line);
+  /* smart-animate equivalent: 300ms ease-out crossfade */
+  transition: background-color var(--modal-fade), color var(--modal-fade);
 }
 
 .ecom-product-modal__color-option:last-child .ecom-product-modal__color-label {
   border-right: 0;
 }
 
-/* Swatch — Figma 4.839 x 39.632, 0.5px solid #000000, flush to the left edge
-   of its cell (135.5 = 271 / 2 = the start of the second cell).
-   The stroke doubles as the outline that keeps a White swatch visible against
-   the white cell; inside a dark swatch it simply disappears.
+/* Swatch — Figma 4.839 x 39.632, 0.5px solid #000000, flush left in its cell.
+   The stroke is also what keeps a White swatch visible against the white cell;
+   inside a dark swatch it simply disappears.
    4.839 + 8.161 = 13px, so the value text lines up with the size field. */
 .ecom-product-modal__color-swatch {
   width: 4.839px;
-  height: 39.632px;          /* the cell is 45 tall -> 2.68 above and below */
+  height: 39.632px;
   margin-right: 8.161px;
   border: 0.5px solid #000000;
   background: #cccccc;
   box-sizing: border-box;
   flex-shrink: 0;
+  transition: background-color var(--modal-fade);
 }
 
 .ecom-product-modal__color-option input:checked + .ecom-product-modal__color-label {
@@ -415,23 +428,23 @@
   border-left: var(--modal-line);
 }
 
-/* down-arrow.svg / up-arrow.svg, 12 x 6 — exactly one is shown per state.
-   pointer-events:none keeps the click target on the button itself. */
+/* Both chevrons are stacked in the cell and crossfade over 300ms ease-out,
+   which display:none could never animate. */
 .ecom-product-modal__size-chevron {
-  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 12px;
   height: 6px;
+  opacity: 0;
   pointer-events: none;
+  transition: opacity var(--modal-fade);
 }
 
-.ecom-product-modal__size-chevron--up,
-.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron--down {
-  display: none;
-}
-
-.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron--up {
-  display: block;
-}
+.ecom-product-modal__size-chevron--down { opacity: 1; }
+.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron--down { opacity: 0; }
+.ecom-product-modal__size-select.is-open .ecom-product-modal__size-chevron--up { opacity: 1; }
 
 /* Short panel hanging under the field: it stops well before the bottom of the
    card (337.82 + 88 = 425.8 < 447) so its edge never merges with the popup
@@ -457,9 +470,9 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);
-  transition: opacity 220ms var(--modal-ease),
-              transform 220ms var(--modal-ease),
-              visibility 220ms;
+  transition: opacity var(--modal-fade),
+              transform var(--modal-fade),
+              visibility 300ms;
 }
 
 .ecom-product-modal__size-select.is-open .ecom-product-modal__size-list {
@@ -478,8 +491,7 @@
   letter-spacing: -0.02em;
   text-align: center;
   cursor: pointer;
-  transition: background-color 200ms var(--modal-ease),
-              color 200ms var(--modal-ease);
+  transition: background-color var(--modal-fade), color var(--modal-fade);
 }
 
 .ecom-product-modal__size-option:hover,

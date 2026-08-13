@@ -122,11 +122,13 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   position: relative;
   right: auto;
   top: auto;
-  transform: none;
+  display: inline-block;
   width: 24px;
   height: 1.5px;
   background-color: currentColor;
-  display: inline-block;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
   transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -154,7 +156,7 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
 
 /* Smooth arrow shift on hover */
 .tisso-header__gift-button:hover .tisso-header__gift-arrow {
-  transform: translateX(4px);
+  transform: translateX(4px) translateZ(0);
 }
 
 .tisso-header__mobile {
@@ -345,7 +347,10 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   width: 24px;
   height: 1.5px;
   background: currentColor;
-  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 350ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .tisso-gift-banner__cta-arrow::after {
@@ -361,8 +366,8 @@ body:has([data-tisso-banner]) #MainContent > .shopify-section:not(:has([data-tis
   box-sizing: border-box;
 }
 
-.tisso-gift-banner__cta:hover .tisso-gift-banner__cta-arrow { 
-transform: translateX(4px); 
+.tisso-gift-banner__cta:hover .tisso-gift-banner__cta-arrow {
+  transform: translateX(4px) translateZ(0);
 }
 
 /* Mobile drawer button keeps the simple invert */
